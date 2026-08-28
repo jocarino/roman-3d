@@ -10,7 +10,9 @@ export class Countdown {
     this.node = root.querySelector('#countdown-value');
     this.target = new Date(mission.launch.target_utc).getTime();
     this.timer = null;
-    if (this.node) this.start();
+    // A bad date would otherwise replace the correct server-rendered sentence
+    // with NaNd NaNh NaNm NaNs and never stop.
+    if (this.node && Number.isFinite(this.target)) this.start();
   }
 
   start() {
@@ -27,7 +29,7 @@ export class Countdown {
   tick() {
     const remaining = this.target - Date.now();
     if (remaining <= 0) {
-      this.node.textContent = this.mission.launch.display;
+      this.node.textContent = this.mission.launch.after || this.mission.launch.display;
       this.stop();
       return;
     }

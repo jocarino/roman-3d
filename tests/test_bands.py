@@ -89,6 +89,13 @@ def test_no_observing_schedule_is_promised(facts):
 
 
 def test_launch_wording(mission):
-    assert mission["launch"]["display"] == "May 2027"
-    assert "no later than" in mission["launch"]["basis"].lower()
-    assert mission["launch"]["target_utc"].startswith("2027-05-01")
+    """SPEC 11 pinned 'by May 2027'. NASA moved the launch up nine months, and
+    the mission page the site cites now gives a date and a time, so this pins
+    the new one. The old commitment stays in the basis text as history."""
+
+    assert mission["launch"]["target_utc"] == "2026-08-30T11:26:00Z"
+    assert "30 August 2026" in mission["launch"]["display"]
+    basis = mission["launch"]["basis"].lower()
+    assert "no earlier than" in basis
+    assert "may 2027" in basis, "the superseded commitment should still be explained"
+    assert mission["launch"]["retrieved"] == "2026-08-28"

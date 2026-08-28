@@ -132,7 +132,13 @@ a { color: var(--accent); text-decoration-color: rgba(224, 168, 62, 0.45); }
   flex-wrap: wrap;
   gap: var(--hud-gap);
 }
-.hud > * { pointer-events: auto; }
+/* Only real controls capture the pointer. Letting the containers capture it
+   made the whole top strip of the stage undraggable, because a block-level h1
+   in a stretched flex column is as wide as the viewport. */
+.hud button,
+.hud input,
+.hud a,
+.hud label { pointer-events: auto; }
 
 .hud-top { top: 0; flex-direction: column; gap: 6px; }
 .hud-bottom { bottom: 0; align-items: flex-end; }
@@ -220,16 +226,85 @@ a { color: var(--accent); text-decoration-color: rgba(224, 168, 62, 0.45); }
   cursor: pointer;
 }
 .view-button[aria-pressed='true'] { color: var(--accent); border-color: var(--accent); }
+
+/* Two-line action: the name on top, what it actually does underneath. */
+.action-stacked {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3px;
+  padding-top: 7px;
+  padding-bottom: 7px;
+  text-align: left;
+}
+.action-sub {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: .8;
+}
 .action-primary { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
 .action:disabled { opacity: 0.4; cursor: default; }
 
-.explode { min-width: 190px; }
+.explode { min-width: 210px; }
+
+/* Square channel with tick notches and a hard-shadowed block for a thumb.
+   The stock control is round-ended and glossy, which is the one shape this
+   whole design language does not have. */
 .explode-range, .fallback-scrub {
+  -webkit-appearance: none;
+  appearance: none;
   width: 100%;
-  min-height: 44px;
-  accent-color: var(--accent);
+  height: 44px;
   background: transparent;
+  cursor: pointer;
 }
+
+.explode-range::-webkit-slider-runnable-track,
+.fallback-scrub::-webkit-slider-runnable-track {
+  height: 12px;
+  border: 1px solid var(--line);
+  box-shadow: 2px 2px 0 var(--shadow);
+  background:
+    linear-gradient(var(--accent), var(--accent)) left center / var(--fill, 0%) 100% no-repeat,
+    repeating-linear-gradient(90deg, var(--panel-2) 0 7px, var(--line) 7px 8px);
+}
+.explode-range::-moz-range-track,
+.fallback-scrub::-moz-range-track {
+  height: 12px;
+  border: 1px solid var(--line);
+  box-shadow: 2px 2px 0 var(--shadow);
+  background: repeating-linear-gradient(90deg, var(--panel-2) 0 7px, var(--line) 7px 8px);
+}
+.explode-range::-moz-range-progress,
+.fallback-scrub::-moz-range-progress {
+  height: 12px;
+  background: var(--accent);
+}
+
+.explode-range::-webkit-slider-thumb,
+.fallback-scrub::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px;
+  height: 26px;
+  margin-top: -8px;
+  border: 1px solid var(--bg);
+  border-radius: 0;
+  background: var(--accent);
+  box-shadow: 2px 2px 0 var(--shadow);
+}
+.explode-range::-moz-range-thumb,
+.fallback-scrub::-moz-range-thumb {
+  width: 13px;
+  height: 26px;
+  border: 1px solid var(--bg);
+  border-radius: 0;
+  background: var(--accent);
+  box-shadow: 2px 2px 0 var(--shadow);
+}
+.explode-range:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--ink); outline-offset: 1px; }
 
 .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
 

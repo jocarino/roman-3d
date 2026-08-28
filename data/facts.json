@@ -54,11 +54,15 @@
       "source": "model-source"
     },
     "intro": {
-      "text": "This is NASA's own 3D model of the Roman Space Telescope, turned into voxels so you can orbit it, pull it apart and follow the light through it. The shapes are NASA's. The colours and the light path are ours, drawn as a diagram rather than a photograph.",
+      "text": "This is NASA's own 3D model of the Roman Space Telescope, rebuilt out of cubes so you can orbit it, pull it apart and follow the light through it. The shapes are NASA's. The colours and the light path are ours, drawn as a diagram rather than a photograph.",
       "source": "model-source"
     },
     "honesty": {
       "text": "Stylised, not photographic. The geometry comes from NASA's public domain model of the observatory exterior. Colours are a chosen palette and the light path is a schematic, because the real instruments sit inside a shell this model does not open.",
+      "source": "model-source"
+    },
+    "voxel": {
+      "text": "A voxel is a pixel with a third dimension: a small cube sitting on a grid, the way a pixel is a small square sitting on a screen. This observatory is built from about 123,000 of them, and you are looking at the ones on the outside.",
       "source": "model-source"
     }
   },
@@ -93,7 +97,10 @@
     "source_code": "Source code",
     "canvas_label": "Three-dimensional voxel model of the Roman Space Telescope. Drag to orbit it.",
     "noscript": "This page needs JavaScript for the 3D model. Everything the model would have told you is written out below.",
-    "lightpath_finale": "See the colours this instrument could measure"
+    "lightpath_finale": "See the colours this instrument could measure",
+    "lightpath_hint": "Seven steps from a star to a colour",
+    "reset_label": "Reset view",
+    "reset_title": "Put the telescope back the way it started"
   },
   "components": [
     {
@@ -137,7 +144,7 @@
       "name": "The 2.4 metre mirror",
       "short": "A hand-me-down with a history.",
       "blurb": {
-        "text": "Roman's primary mirror is 2.4 metres across, the same size as Hubble's, and it did not start out as a NASA telescope. It arrived in 2012 as surplus hardware from the National Reconnaissance Office, under a programme called AFTA. That donation is why every material inside the source 3D model is still named Afta. The mission was called WFIRST for years, and was renamed in 2020 for Nancy Grace Roman.",
+        "text": "Roman's primary mirror is 2.4 metres across, the same size as Hubble's, and it did not start out as a NASA telescope. It arrived in 2012 as surplus hardware from the National Reconnaissance Office, under a programme called AFTA. That donation is why every material inside the source 3D model is still named Afta. The mission was called WFIRST for years, and was renamed in 2020 for Nancy Grace Roman, NASA's first chief astronomer.",
         "source": "naming"
       },
       "facts": [
@@ -146,11 +153,11 @@
           "source": "roman-mission"
         },
         {
-          "text": "The mission was known as WFIRST until NASA renamed it in 2020 for Nancy Grace Roman, the agency's first chief of astronomy.",
+          "text": "The mission was known as WFIRST until NASA renamed it in 2020 for Nancy Grace Roman, NASA's first chief astronomer.",
           "source": "naming"
         },
         {
-          "text": "Because the mirror is the same size as Hubble's but the camera behind it is far wider, Roman sees a much larger patch of sky at similar sharpness.",
+          "text": "Because the mirror is the same size as Hubble's but the camera behind it takes in far more sky at once, Roman surveys a much larger area at similar sharpness.",
           "source": "wfi-mission"
         }
       ],
@@ -161,12 +168,12 @@
       "name": "Wide Field Instrument",
       "short": "The very wide camera.",
       "blurb": {
-        "text": "The Wide Field Instrument is the reason Roman exists. It is an infrared camera with a field of view around a hundred times larger than Hubble's infrared camera, at comparable sharpness. That is the whole trick: not seeing deeper than Hubble, but seeing as well as Hubble over enough sky to survey it. Surveys are how you find rare things, and rare things are where the answers are.",
+        "text": "The Wide Field Instrument is the reason Roman exists. It is an infrared camera that takes in about 200 times more sky than Hubble's infrared camera does, at comparable sharpness. That is the whole trick: not seeing deeper than Hubble, but seeing as well as Hubble over enough sky to survey it. Surveys are how you find rare things, and rare things are where the answers are.",
         "source": "wfi-mission"
       },
       "facts": [
         {
-          "text": "The Wide Field Instrument has a field of view roughly 100 times larger than Hubble's infrared camera, at similar image sharpness.",
+          "text": "The Wide Field Instrument sees a patch of sky about 200 times larger than Hubble's Wide Field Camera 3 infrared images, at similar image sharpness.",
           "source": "wfi-mission"
         },
         {

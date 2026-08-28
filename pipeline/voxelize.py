@@ -31,6 +31,9 @@ SAMPLE_SPACING = 0.5
 # Cap on samples generated in one vectorized batch, to bound peak memory.
 _BATCH_SAMPLES = 4_000_000
 
+# How many near-miss cells to remember per primitive for the rescue pass.
+RESCUE_CANDIDATES = 8
+
 
 @dataclass(frozen=True)
 class Grid:
@@ -122,6 +125,34 @@ def _sample_triangles(verts: np.ndarray, tris: np.ndarray, spacing: float) -> It
             yield pts.reshape(-1, 3)
 
 
+def _rescue(best_prim: np.ndarray, fallback: dict[int, np.ndarray], total: int) -> None:
+    """Give every primitive that lost all its cells one of its closest few back.
+
+    The obvious version of this, taking each loser's single nearest cell, is
+    wrong: that cell already belongs to someone, and if it was their only one
+    the rescue erases them instead. On the real model at grid 192 that is not
+    hypothetical, it happens between two materials. So walk each loser's
+    candidates in distance order and take the first cell whose current holder
+    can spare it, keeping the counts up to date as we go.
+    """
+
+    counts = np.bincount(best_prim[best_prim >= 0].astype(np.int64), minlength=total)
+    for pindex in sorted(fallback):
+        if counts[pindex] > 0:
+            continue
+        for flat in fallback[pindex].tolist():
+            holder = int(best_prim[flat])
+            if holder == pindex:
+                break
+            if holder >= 0 and counts[holder] <= 1:
+                continue  # their last cell; leave it and try the next candidate
+            if holder >= 0:
+                counts[holder] -= 1
+            best_prim[flat] = pindex
+            counts[pindex] += 1
+            break
+
+
 def _reduce_min(keys: np.ndarray, values: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Group ``values`` by ``keys`` and keep the minimum of each group."""
 
@@ -145,8 +176,10 @@ def voxelize(model: Model, long_axis_voxels: int, dilate: bool = False) -> Voxel
 
     best_dist = np.full(grid.count, np.inf, dtype=np.float32)
     best_prim = np.full(grid.count, -1, dtype=np.int16)
-    # Each primitive's single best claim, so nothing can be voted out entirely.
-    fallback: dict[int, int] = {}
+    # Each primitive's closest few cells, so nothing can be voted out entirely.
+    # More than one, because the closest may belong to a primitive that has no
+    # cell to spare, and taking it would just move the problem.
+    fallback: dict[int, np.ndarray] = {}
 
     upper = np.array([nx - 1, ny - 1, nz - 1])
     for pindex, prim in enumerate(model.primitives):
@@ -171,14 +204,10 @@ def voxelize(model: Model, long_axis_voxels: int, dilate: bool = False) -> Voxel
         best_dist[flats[win]] = dists[win].astype(np.float32)
         best_prim[flats[win]] = pindex
 
-        fallback[pindex] = int(flats[int(np.argmin(dists))])
+        order = np.argsort(dists, kind="stable")[:RESCUE_CANDIDATES]
+        fallback[pindex] = flats[order]
 
-    # A primitive that lost every one of its cells still gets its single closest
-    # one, so no material is unreachable in the UI and no component can be empty.
-    claimed = set(np.unique(best_prim[best_prim >= 0]).tolist())
-    for pindex, flat in fallback.items():
-        if pindex not in claimed:
-            best_prim[flat] = pindex
+    _rescue(best_prim, fallback, len(model.primitives))
 
     if dilate:
         best_prim = _dilate(best_prim, grid)

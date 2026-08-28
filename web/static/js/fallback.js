@@ -31,7 +31,10 @@ export function mountFallback({ root, facts, framePath = 'frames', reducedMotion
     index = ((next % FRAME_COUNT) + FRAME_COUNT) % FRAME_COUNT;
     image.src = `${framePath}/orbit-${String(index).padStart(2, '0')}.png`;
     image.alt = `${facts.ui.frame_label} ${index + 1} / ${FRAME_COUNT}`;
-    if (scrub) scrub.value = String(index);
+    if (scrub) {
+      scrub.value = String(index);
+      scrub.style.setProperty('--fill', `${(index / (FRAME_COUNT - 1)) * 100}%`);
+    }
   };
 
   scrub?.addEventListener('input', () => show(Number(scrub.value)));

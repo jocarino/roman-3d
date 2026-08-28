@@ -44,6 +44,9 @@ async function boot() {
   const observatory = new Observatory(canvas, model, { outline: true });
   const controls = new Controls(observatory, canvas, { reducedMotion });
   const ui = new UI({ facts, mission, root, observatory, controls });
+  // Double click and the 0 key reset the camera; the exploded view, the open
+  // panel and the pressed view button have to come back with it.
+  controls.onReset = () => ui.afterReset();
   const lightPath = new LightPath({
     facts,
     root,

@@ -41,6 +41,19 @@ def test_every_voxel_is_assigned(voxels, mapping):
     assert (assigned >= 0).all()
 
 
+def test_no_material_is_empty(model, voxels):
+    """The rescue pass in voxelize exists to guarantee exactly this.
+
+    Checking groups alone missed it: a material can be wiped out while its
+    group stays comfortably non-empty, and the tile for it goes blank with
+    nothing failing.
+    """
+
+    counts = np.bincount(voxels.primitive.astype(np.int64), minlength=len(model.primitives))
+    empty = [p.material for i, p in enumerate(model.primitives) if counts[i] == 0]
+    assert not empty, f"materials with no voxels: {empty}"
+
+
 def test_no_group_is_empty(voxels, mapping):
     coverage = components_mod.coverage(voxels, mapping)
     empty = [name for name, count in coverage.items() if count == 0]

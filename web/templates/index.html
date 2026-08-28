@@ -60,7 +60,11 @@
     </div>
 
     <div class="actions">
-      <button type="button" id="lightpath-open" class="action action-primary">{{UI_LIGHTPATH_OPEN}}</button>
+      <button type="button" id="reset-view" class="action" title="{{UI_RESET_TITLE}}">{{UI_RESET_LABEL}}</button>
+      <button type="button" id="lightpath-open" class="action action-primary action-stacked">
+        <span class="action-label">{{UI_LIGHTPATH_OPEN}}</span>
+        <span class="action-sub">{{UI_LIGHTPATH_HINT}}</span>
+      </button>
       <button type="button" id="about-open" class="action">{{UI_ABOUT_OPEN}}</button>
     </div>
     <p id="controls-hint" class="visually-hidden"></p>
@@ -93,6 +97,7 @@
       <button type="button" class="overlay-close" data-close aria-label="{{UI_ABOUT_CLOSE}}">x</button>
       <h2 id="info-title" class="overlay-title">{{UI_INFO_LABEL}}</h2>
       <p class="overlay-body">{{INTRO}}</p>
+      <p class="overlay-body">{{VOXEL}}</p>
       <p class="overlay-body">{{HONESTY}}</p>
       <p class="overlay-note">{{COUNTDOWN_BASIS}}
         <a href="{{COUNTDOWN_SOURCE_URL}}" rel="noopener" target="_blank">{{COUNTDOWN_SOURCE_LABEL}}</a>

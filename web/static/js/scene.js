@@ -18,7 +18,7 @@ const BACKGROUND = 0x0a0d13;
 // The starfield lives on its own sphere with its own camera, so it never
 // competes with the model for depth range and never gets clipped by it.
 const STAR_RADIUS = 1000;
-const STAR_COUNT = 120;
+const STAR_COUNT = 460;
 const OUTLINE_COLOR = new THREE.Color(6 / 255, 8 / 255, 12 / 255);
 
 const MODEL_VERTEX = /* glsl */ `
@@ -61,11 +61,24 @@ const MODEL_FRAGMENT = /* glsl */ `
     float d = (bayer2(0.5 * gl_FragCoord.xy) * 0.25 + bayer2(gl_FragCoord.xy)) - 0.5;
     level += d * uDither;
     float step = clamp(floor(level + 0.5), 0.0, uShades - 1.0);
-    if (uHighlight >= 0.0 && abs(vGroup - uHighlight) > 0.5) {
-      step = max(step - 1.0, 0.0);
+    float base = vColor;
+
+    if (uHighlight >= 0.0) {
+      if (abs(vGroup - uHighlight) > 0.5) {
+        // Everything else drops to the darkest charcoal, the way the contact
+        // sheet does it. Taking one shade step off was far too subtle to answer
+        // the only question a hover asks: which bit is that?
+        base = 2.0;
+        step = 0.0;
+      } else {
+        step = min(step + 1.0, uShades - 1.0);
+      }
     }
-    vec2 uv = vec2((step + 0.5) / uShades, (vColor + 0.5) / 16.0);
-    gl_FragColor = vec4(texture2D(uRamp, uv).rgb, 1.0);
+
+    vec2 uv = vec2((step + 0.5) / uShades, (base + 0.5) / 16.0);
+    // Alpha carries the group id so the outline pass can find a real boundary
+    // instead of inferring one from depth. Background stays at 1.0.
+    gl_FragColor = vec4(texture2D(uRamp, uv).rgb, (vGroup + 1.0) / 255.0);
   }
 `;
 
@@ -82,10 +95,18 @@ const PICK_FRAGMENT = /* glsl */ `
 
 const STAR_VERTEX = /* glsl */ `
   attribute float aTone;
+  uniform vec3 uViewDir;
   varying float vTone;
   void main() {
     vTone = aTone;
     gl_PointSize = 1.0;
+    // Draw only the half of the celestial sphere in front of the camera.
+    // Rendering both halves put the near and far hemispheres on screen at once,
+    // sliding in opposite directions, which is what made the sky look wrong.
+    if (dot(normalize(position), uViewDir) < 0.0) {
+      gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+      return;
+    }
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
@@ -113,20 +134,32 @@ const POST_FRAGMENT = /* glsl */ `
   varying vec2 vUv;
 
   void main() {
-    vec3 rgb = texture2D(tColor, vUv).rgb;
+    vec4 src = texture2D(tColor, vUv);
+    vec3 rgb = src.rgb;
     float depth = texture2D(tDepth, vUv).r;
 
     if (uOutlineOn > 0.5 && depth < 1.0) {
-      // Second difference, not first. A plate seen almost edge on has a huge
-      // depth gradient but no curvature, so a first-difference test paints the
-      // whole solar array as one big outline. Curvature only spikes where one
-      // surface actually ends and another begins.
+      // Two tests. The first compares the group id the model pass wrote into
+      // alpha, which is exact: a silhouette against the sky and a boundary
+      // between two components can never flicker.
+      float idL = texture2D(tColor, vUv - vec2(uTexel.x, 0.0)).a;
+      float idR = texture2D(tColor, vUv + vec2(uTexel.x, 0.0)).a;
+      float idD = texture2D(tColor, vUv - vec2(0.0, uTexel.y)).a;
+      float idU = texture2D(tColor, vUv + vec2(0.0, uTexel.y)).a;
+      float idBreak = max(max(abs(idL - src.a), abs(idR - src.a)),
+                          max(abs(idD - src.a), abs(idU - src.a)));
+
+      // The second catches one part passing behind another within the same
+      // group. Second difference, not first: a plate seen almost edge on has a
+      // huge depth gradient but no curvature, and a first-difference test
+      // painted the whole solar array as one flat slab of outline.
       float left = texture2D(tDepth, vUv - vec2(uTexel.x, 0.0)).r;
       float right = texture2D(tDepth, vUv + vec2(uTexel.x, 0.0)).r;
       float down = texture2D(tDepth, vUv - vec2(0.0, uTexel.y)).r;
       float up = texture2D(tDepth, vUv + vec2(0.0, uTexel.y)).r;
       float bend = max(abs(left + right - 2.0 * depth), abs(down + up - 2.0 * depth));
-      if (bend > uOutlineDepth) rgb = uOutline;
+
+      if (idBreak > 0.002 || bend > uOutlineDepth) rgb = uOutline;
     }
 
     if (uScanlines > 0.0) {
@@ -279,7 +312,9 @@ export class Observatory {
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     geometry.setAttribute('aTone', new THREE.BufferAttribute(tones, 1));
 
+    this.starUniforms = { uViewDir: { value: new THREE.Vector3(0, 0, -1) } };
     const material = new THREE.ShaderMaterial({
+      uniforms: this.starUniforms,
       vertexShader: STAR_VERTEX,
       fragmentShader: STAR_FRAGMENT,
       depthTest: false,
@@ -303,15 +338,29 @@ export class Observatory {
     const camera = this.starCamera;
     camera.position.copy(this.camera.position);
     camera.quaternion.copy(this.camera.quaternion);
-    const halfHeight = STAR_RADIUS * 0.88;
-    camera.top = halfHeight;
-    camera.bottom = -halfHeight;
-    camera.right = (halfHeight * width) / height;
+    // Frame the middle of the projected disc, never its rim. At the rim a star
+    // sits exactly on the hemisphere boundary, so it would blink in and out as
+    // the camera turned past it.
+    // 0.68 rather than 0.75: the frame corner is sqrt(2) further out than its
+    // edge, so on a square window 0.75 would push the corners past the
+    // hemisphere boundary and stars would blink there.
+    const half = STAR_RADIUS * 0.68;
+    if (width >= height) {
+      camera.right = half;
+      camera.top = (half * height) / width;
+    } else {
+      camera.top = half;
+      camera.right = (half * width) / height;
+    }
     camera.left = -camera.right;
+    camera.bottom = -camera.top;
     camera.near = -STAR_RADIUS * 4;
     camera.far = STAR_RADIUS * 4;
     camera.updateProjectionMatrix();
     camera.updateMatrixWorld();
+
+    // Forward, in world space: the camera always looks at the origin.
+    this.starUniforms.uViewDir.value.copy(camera.position).multiplyScalar(-1).normalize();
   }
 
   /**
@@ -438,11 +487,12 @@ export class Observatory {
     this.camera.updateProjectionMatrix();
 
     if (this.postUniforms) {
-      // Roughly two voxels of depth curvature: enough to ignore the one-voxel
-      // staircase on a slanted face, little enough to catch one part passing
-      // behind another.
+      // Roughly three voxels of depth curvature. The id test already catches
+      // every silhouette and component boundary exactly, so this one can afford
+      // to be conservative, and a conservative threshold is what stops the
+      // outline shimmering as the model turns.
       const range = this.camera.far - this.camera.near;
-      this.postUniforms.uOutlineDepth.value = 2.0 / range;
+      this.postUniforms.uOutlineDepth.value = 3.2 / range;
     }
   }
 

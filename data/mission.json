@@ -1,13 +1,14 @@
 {
   "version": 1,
   "launch": {
-    "label": "Launch, no later than",
-    "display": "May 2027",
-    "target_utc": "2027-05-01T00:00:00Z",
-    "basis": "NASA states Roman is on track to launch no later than May 2027. This is a commitment date and not a scheduled launch time, so the clock counts down to the start of that month.",
-    "retrieved": "2026-08",
+    "label": "Launch",
+    "display": "30 August 2026, 7:26 am EDT",
+    "target_utc": "2026-08-30T11:26:00Z",
+    "basis": "NASA and SpaceX are targeting liftoff no earlier than 7:26 am EDT on Sunday 30 August 2026, on a Falcon Heavy from Launch Complex 39A at Kennedy Space Center. That is nine months ahead of the old schedule: the commitment used to be no later than May 2027. A launch time can still slip, so this clock counts to the target, not to a promise.",
+    "retrieved": "2026-08-28",
     "source": "https://science.nasa.gov/mission/roman-space-telescope/",
-    "source_label": "NASA, Nancy Grace Roman Space Telescope mission page"
+    "source_label": "NASA, Nancy Grace Roman Space Telescope mission page",
+    "after": "Launched 30 August 2026"
   },
-  "no_js": "Roman is expected to launch no later than May 2027."
+  "no_js": "Roman is targeting launch on 30 August 2026 at 7:26 am EDT."
 }

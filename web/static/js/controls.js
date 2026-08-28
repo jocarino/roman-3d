@@ -21,10 +21,13 @@ export const SNAP_VIEWS = {
 export const SNAP_ORDER = ['front', 'right', 'back', 'left', 'top'];
 
 export class Controls {
-  constructor(observatory, element, { reducedMotion = false } = {}) {
+  constructor(observatory, element, { reducedMotion = false, onReset = null } = {}) {
     this.observatory = observatory;
     this.element = element;
     this.reducedMotion = reducedMotion;
+    // Fired by every reset route (button, double click, the 0 key) so the UI
+    // can put the exploded view and the panel back at the same time.
+    this.onReset = onReset;
 
     this.azimuth = 24;
     this.elevation = 18;
@@ -92,7 +95,7 @@ export class Controls {
       { passive: false }
     );
 
-    el.addEventListener('dblclick', () => this.reset());
+    el.addEventListener('dblclick', () => this.reset());  // also snaps the exploded view back
 
     // Two-finger pinch. Tracked separately from the single-pointer drag so a
     // pinch never also spins the model.
@@ -183,11 +186,12 @@ export class Controls {
     if (this.reducedMotion) this.apply(true);
   }
 
-  reset() {
+  reset({ notify = true } = {}) {
     this.autoOrbit = !this.reducedMotion;
     this.target = { azimuth: 24, elevation: 18, zoom: 1 };
     this.velocity = { azimuth: 0, elevation: 0 };
     if (this.reducedMotion) this.apply(true);
+    if (notify) this.onReset?.();
   }
 
   update(delta) {

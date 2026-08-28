@@ -181,6 +181,7 @@ def render_page(facts: dict, mission: dict, mapping, provenance: dict) -> str:
         "TAGLINE": facts["site"]["tagline"]["text"],
         "INTRO": facts["site"]["intro"]["text"],
         "HONESTY": facts["site"]["honesty"]["text"],
+        "VOXEL": facts["site"]["voxel"]["text"],
         "CANVAS_LABEL": ui["canvas_label"],
         "NOSCRIPT_NOTE": ui["noscript"],
         "COUNTDOWN_LABEL": mission["launch"]["label"],

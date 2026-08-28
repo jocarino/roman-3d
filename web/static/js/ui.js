@@ -32,6 +32,7 @@ export class UI {
     this._wireDialogs();
     this._wireViews();
     this._wireExplode();
+    this._wireReset();
   }
 
   _wireDialogs() {
@@ -57,6 +58,11 @@ export class UI {
     });
   }
 
+  /** Called when the camera moves by any route other than a view button. */
+  clearActiveView() {
+    this._markActiveView(null);
+  }
+
   _wireExplode() {
     const slider = this.root.querySelector('#explode-range');
     if (!slider) return;
@@ -64,16 +70,40 @@ export class UI {
       const amount = Number(slider.value) / 100;
       this.observatory.setExplode(amount);
       slider.setAttribute('aria-valuetext', `${slider.value} percent apart`);
+      // Drives the filled part of the track; the square look is all CSS.
+      slider.style.setProperty('--fill', `${slider.value}%`);
     };
     slider.addEventListener('input', apply);
+    this.applyExplode = apply;
     apply();
     this.explodeSlider = slider;
+  }
+
+  _wireReset() {
+    const button = this.root.querySelector('#reset-view');
+    button?.addEventListener('click', () => this.resetView());
+  }
+
+  /** Put everything back: camera, exploded view, selection, pressed states. */
+  resetView() {
+    // notify:false, because the callback below is what brought us here when the
+    // reset came from a double click or the 0 key.
+    this.controls?.reset({ notify: false });
+    this.afterReset();
+  }
+
+  /** Everything a reset does except move the camera. */
+  afterReset() {
+    this.resetExplode();
+    this.clearSelection();
+    this._markActiveView(null);
   }
 
   resetExplode() {
     if (!this.explodeSlider) return;
     this.explodeSlider.value = '0';
-    this.observatory.setExplode(0);
+    // Through apply(), so aria-valuetext and the track fill stay in step.
+    this.applyExplode();
   }
 
   openDialog(dialog, opener) {
@@ -92,15 +122,18 @@ export class UI {
 
   closeTopDialog() {
     const open = [...this.root.querySelectorAll('[role="dialog"]')].filter((d) => !d.hidden);
-    if (open.length) {
-      this.closeDialog(open[open.length - 1]);
-      return true;
-    }
-    if (this.selected >= 0) {
+    const top = open[open.length - 1];
+    if (!top) return false;
+    // The component panel is a dialog too, but closing it has to release the
+    // selection as well. Hiding it alone left `selected` set, which made
+    // setHover() bail on every later move and killed hovering for the session.
+    if (top === this.panel) {
       this.clearSelection();
+      this.lastFocus?.focus?.();
       return true;
     }
-    return false;
+    this.closeDialog(top);
+    return true;
   }
 
   /** Hover feedback: brighten the group and float its name near the cursor. */
