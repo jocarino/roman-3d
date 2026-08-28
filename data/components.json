@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "status": "provisional",
+  "note": "Curated against the M1 contact sheet and the per-material bounding boxes, not against the material names, which are unreliable. Awaiting the owner's GO at the M1 gate; changing a label or moving a material between groups needs no code change, only this file.",
+  "axes": {
+    "x": "long axis. The aperture looks along -x; the aft bulkhead and antenna are at +x.",
+    "y": "up. The solar array sun shield is a flat plane at y = +60.",
+    "z": "across. The sun shield spans z = -104..104."
+  },
+  "groups": [
+    {
+      "id": "sun-shield",
+      "label": "Solar Array Sun Shield",
+      "explode": [0.0, 1.0, 0.0],
+      "rules": [
+        { "material": "Afta-solar1" },
+        { "material": "Afta-solar22" },
+        { "material": "Afta-solar33" },
+        { "material": "Afta-solar44" },
+        { "material": "Afta-solar55" },
+        { "material": "Afta-solar66" },
+        { "material": "Afta-solar77" },
+        { "material": "Afta-solarback" },
+        { "material": "Afta-solartop-base" }
+      ]
+    },
+    {
+      "id": "barrel",
+      "label": "Telescope barrel",
+      "explode": [-1.0, 0.15, 0.0],
+      "rules": [
+        { "material": "Afta-schnoozle-out" },
+        { "material": "Afta-schnoozle-inside" },
+        { "material": "Afta-schnoozle-rear-out" },
+        { "material": "Afta-blackout" },
+        { "material": "Afta-blackout2" },
+        { "material": "Afta-grey3-sm", "x_max": -21.0 },
+        { "material": "Afta-grey2-sm", "x_max": -21.0 }
+      ]
+    },
+    {
+      "id": "optics",
+      "label": "Primary mirror",
+      "explode": [-0.42, 0.0, 0.0],
+      "rules": [
+        { "material": "Afta-lens" },
+        { "material": "Afta-black-sm" },
+        { "material": "Afta-hood" }
+      ]
+    },
+    {
+      "id": "instrument-carrier",
+      "label": "Instrument carrier",
+      "explode": [0.0, 0.0, -1.0],
+      "rules": [
+        { "material": "Afta-bridgework-silver" },
+        { "material": "Afta-bridgework-bronze" },
+        { "material": "Afta-bridgework-underside" },
+        { "material": "Afta-Instrument1-sm" }
+      ]
+    },
+    {
+      "id": "antenna",
+      "label": "High-gain antenna",
+      "explode": [0.35, 1.0, 0.0],
+      "rules": [
+        { "material": "Afta-rear-dish white" },
+        { "material": "Afta-silver1-fl" }
+      ]
+    },
+    {
+      "id": "bus",
+      "label": "Spacecraft bus",
+      "explode": [1.0, 0.0, 0.0],
+      "rules": [
+        { "material": "Afta-grey1-sm" },
+        { "material": "Afta-grey3-sm" },
+        { "material": "Afta-grey2-sm" },
+        { "material": "Afta-rear-disk" },
+        { "material": "Afta-rear-diskcenter" },
+        { "material": "Afta-rear-side-panels" },
+        { "material": "Afta-white reflector" },
+        { "material": "Default" },
+        { "material": "MTL28" },
+        { "material": "MTL29" },
+        { "material": "MTL30" },
+        { "material": "MTL4" },
+        { "material": "MTL44" }
+      ]
+    }
+  ],
+  "components": [
+    { "id": "sun-shield", "group": "sun-shield" },
+    { "id": "barrel", "group": "barrel" },
+    { "id": "optics", "group": "optics" },
+    { "id": "wfi", "group": "instrument-carrier" },
+    { "id": "cgi", "group": "instrument-carrier" },
+    { "id": "antenna", "group": "antenna" },
+    { "id": "bus", "group": "bus" }
+  ],
+  "shared_geometry_note": "The Wide Field Instrument and the Coronagraph Instrument both sit inside the same housing, and the source model has no interior geometry, so both hotspots point at the instrument carrier. The panel says so."
+}

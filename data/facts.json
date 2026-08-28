@@ -1,0 +1,391 @@
+{
+  "version": 1,
+  "note": "Every displayed string on the site lives in this file. Anything that makes a claim carries a source URL. Strings under 'ui' are our own control labels and headings, not claims, so they carry no source.",
+  "sources": {
+    "roman-mission": {
+      "label": "NASA, Nancy Grace Roman Space Telescope",
+      "url": "https://science.nasa.gov/mission/roman-space-telescope/"
+    },
+    "roman-goddard": {
+      "label": "NASA Goddard, Roman Space Telescope",
+      "url": "https://roman.gsfc.nasa.gov/"
+    },
+    "roman-observatory": {
+      "label": "NASA Goddard, Roman observatory overview",
+      "url": "https://roman.gsfc.nasa.gov/observatory.html"
+    },
+    "wfi-technical": {
+      "label": "NASA Goddard, Wide Field Instrument technical page",
+      "url": "https://roman.gsfc.nasa.gov/science/WFI_technical.html"
+    },
+    "wfi-mission": {
+      "label": "NASA, Roman Wide Field Instrument",
+      "url": "https://science.nasa.gov/mission/roman-space-telescope/wide-field-instrument/"
+    },
+    "cgi-mission": {
+      "label": "NASA, Roman Coronagraph Instrument",
+      "url": "https://science.nasa.gov/mission/roman-space-telescope/coronagraph/"
+    },
+    "cgi-goddard": {
+      "label": "NASA Goddard, Roman Coronagraph Instrument",
+      "url": "https://roman.gsfc.nasa.gov/coronagraph.html"
+    },
+    "naming": {
+      "label": "NASA news release, telescope named for Nancy Grace Roman",
+      "url": "https://www.nasa.gov/news-release/nasa-telescope-named-for-mother-of-hubble-nancy-grace-roman/"
+    },
+    "model-source": {
+      "label": "NASA 3D Resources, Nancy Grace Roman Space Telescope (A)",
+      "url": "https://science.nasa.gov/3d-resources/nancy-grace-roman-space-telescope-a/"
+    },
+    "model-mirror": {
+      "label": "NASA 3D Resources on GitHub",
+      "url": "https://github.com/nasa/NASA-3D-Resources"
+    },
+    "nasa-interactive": {
+      "label": "NASA Goddard, Roman interactive observatory",
+      "url": "https://roman.gsfc.nasa.gov/interactive/"
+    }
+  },
+  "site": {
+    "title": "Pixel Observatory",
+    "tagline": {
+      "text": "NASA's Roman Space Telescope, rebuilt voxel by voxel.",
+      "source": "model-source"
+    },
+    "intro": {
+      "text": "This is NASA's own 3D model of the Roman Space Telescope, turned into voxels so you can orbit it, pull it apart and follow the light through it. The shapes are NASA's. The colours and the light path are ours, drawn as a diagram rather than a photograph.",
+      "source": "model-source"
+    },
+    "honesty": {
+      "text": "Stylised, not photographic. The geometry comes from NASA's public domain model of the observatory exterior. Colours are a chosen palette and the light path is a schematic, because the real instruments sit inside a shell this model does not open.",
+      "source": "model-source"
+    }
+  },
+  "ui": {
+    "loading": "Building the observatory",
+    "views_label": "Views",
+    "view_front": "Front",
+    "view_right": "Right",
+    "view_back": "Back",
+    "view_left": "Left",
+    "view_top": "Top",
+    "explode_label": "Pull it apart",
+    "explode_hint": "Slide to separate the major parts, then slide back.",
+    "lightpath_open": "Follow the light",
+    "lightpath_close": "Close",
+    "lightpath_next": "Next",
+    "lightpath_back": "Back",
+    "lightpath_step": "Step",
+    "lightpath_of": "of",
+    "about_open": "About this site",
+    "about_close": "Close",
+    "panel_close": "Close panel",
+    "panel_sources": "Sources",
+    "panel_official": "NASA's page on this",
+    "parts_label": "Parts",
+    "info_label": "What am I looking at?",
+    "reset_hint": "Double click or double tap to reset the view.",
+    "controls_hint": "Drag to orbit. Scroll or pinch to zoom. Arrow keys orbit, plus and minus zoom, keys 1 to 5 snap to a view.",
+    "no_webgl": "Your browser could not start 3D graphics, so here is a pre-rendered orbit instead.",
+    "frame_label": "Orbit frame",
+    "sibling_link": "Exoplanet Palette",
+    "source_code": "Source code",
+    "canvas_label": "Three-dimensional voxel model of the Roman Space Telescope. Drag to orbit it.",
+    "noscript": "This page needs JavaScript for the 3D model. Everything the model would have told you is written out below.",
+    "lightpath_finale": "See the colours this instrument could measure"
+  },
+  "components": [
+    {
+      "id": "sun-shield",
+      "name": "Solar Array Sun Shield",
+      "short": "Power and shade, in one panel.",
+      "blurb": {
+        "text": "The big flat wing does two jobs at once. Its cells make the electricity the observatory runs on, and its body keeps the telescope in permanent shadow. A telescope that keeps drifting in and out of sunlight keeps changing temperature, and a mirror that changes temperature changes shape. Staying in the dark is how Roman stays still.",
+        "source": "roman-observatory"
+      },
+      "facts": [
+        {
+          "text": "The solar array doubles as a sun shield, so the telescope stays shadowed while the panels stay lit.",
+          "source": "roman-observatory"
+        },
+        {
+          "text": "Roman will operate near the Sun and Earth's second Lagrange point, about 1.5 million kilometres from Earth, where the Sun stays on one side of the observatory.",
+          "source": "roman-mission"
+        }
+      ],
+      "official": "roman-observatory"
+    },
+    {
+      "id": "barrel",
+      "name": "Telescope barrel",
+      "short": "The tube that keeps stray light out.",
+      "blurb": {
+        "text": "Everything the telescope sees has to come down this tube, and everything it must not see has to be stopped by it. The barrel and the shade around the opening block sunlight and reflected Earthlight from grazing into the optics. Faint things are only faint compared to what surrounds them, so most of a space telescope is really an elaborate way of holding back light you did not ask for.",
+        "source": "roman-observatory"
+      },
+      "facts": [
+        {
+          "text": "The outer barrel assembly shields the optics from stray light and helps hold the telescope at a stable temperature.",
+          "source": "roman-observatory"
+        }
+      ],
+      "official": "roman-observatory"
+    },
+    {
+      "id": "optics",
+      "name": "The 2.4 metre mirror",
+      "short": "A hand-me-down with a history.",
+      "blurb": {
+        "text": "Roman's primary mirror is 2.4 metres across, the same size as Hubble's, and it did not start out as a NASA telescope. It arrived in 2012 as surplus hardware from the National Reconnaissance Office, under a programme called AFTA. That donation is why every material inside the source 3D model is still named Afta. The mission was called WFIRST for years, and was renamed in 2020 for Nancy Grace Roman.",
+        "source": "naming"
+      },
+      "facts": [
+        {
+          "text": "Roman's primary mirror is 2.4 metres across, the same diameter as Hubble's.",
+          "source": "roman-mission"
+        },
+        {
+          "text": "The mission was known as WFIRST until NASA renamed it in 2020 for Nancy Grace Roman, the agency's first chief of astronomy.",
+          "source": "naming"
+        },
+        {
+          "text": "Because the mirror is the same size as Hubble's but the camera behind it is far wider, Roman sees a much larger patch of sky at similar sharpness.",
+          "source": "wfi-mission"
+        }
+      ],
+      "official": "roman-mission"
+    },
+    {
+      "id": "wfi",
+      "name": "Wide Field Instrument",
+      "short": "The very wide camera.",
+      "blurb": {
+        "text": "The Wide Field Instrument is the reason Roman exists. It is an infrared camera with a field of view around a hundred times larger than Hubble's infrared camera, at comparable sharpness. That is the whole trick: not seeing deeper than Hubble, but seeing as well as Hubble over enough sky to survey it. Surveys are how you find rare things, and rare things are where the answers are.",
+        "source": "wfi-mission"
+      },
+      "facts": [
+        {
+          "text": "The Wide Field Instrument has a field of view roughly 100 times larger than Hubble's infrared camera, at similar image sharpness.",
+          "source": "wfi-mission"
+        },
+        {
+          "text": "The instrument's detector array is built from 18 infrared detectors working together as one very large camera.",
+          "source": "wfi-technical"
+        }
+      ],
+      "official": "wfi-mission"
+    },
+    {
+      "id": "cgi",
+      "name": "Coronagraph Instrument",
+      "short": "The starlight blocker. A technology demonstration.",
+      "blurb": {
+        "text": "The Coronagraph Instrument blocks the light of a star so the far fainter light of a planet beside it can be seen. It is carried as a technology demonstration rather than a survey instrument, which means its job is to prove the technique works in space. If it does, it could be the first instrument ever to measure the visible colour of a planet around another star.",
+        "source": "cgi-mission"
+      },
+      "facts": [
+        {
+          "text": "Roman's Coronagraph Instrument supports three visible bandpasses: 575 nm at 10 percent width for imaging and polarimetry, 730 nm at 15 percent width for slit and prism spectroscopy at about R equals 50, and 825 nm at 10 percent width for wide field imaging.",
+          "source": "cgi-mission",
+          "source_note": "Mode table, Roman Coronagraph Instrument Primer, Coronagraph Participating Program, 8 January 2025."
+        },
+        {
+          "text": "A fourth filter at 660 nm and 15 percent width is physically installed on the filter wheel but was never characterised on the ground, so it is not a supported observing mode. Installed, never tested, rather than absent.",
+          "source": "cgi-mission",
+          "source_note": "Mode table, Roman Coronagraph Instrument Primer, Coronagraph Participating Program, 8 January 2025."
+        },
+        {
+          "text": "Only Band 1 at 575 nm with the hybrid Lyot coronagraph is a formal requirement. The other bands are best effort, which is a contractual term and not a prediction that they will not happen.",
+          "source": "cgi-mission",
+          "source_note": "Mode table, Roman Coronagraph Instrument Primer, Coronagraph Participating Program, 8 January 2025."
+        },
+        {
+          "text": "The Coronagraph Instrument is a technology demonstration. Which planets it observes, and when, is not a published schedule.",
+          "source": "cgi-goddard"
+        }
+      ],
+      "official": "cgi-mission"
+    },
+    {
+      "id": "antenna",
+      "name": "High-gain antenna",
+      "short": "How the pictures get home.",
+      "blurb": {
+        "text": "A survey telescope is a data problem as much as an optics problem. The high-gain antenna is the narrow beam that carries Roman's images back to Earth from a million and a half kilometres away. It sits on a steerable arm so the dish can hold its aim at Earth while the telescope points somewhere else entirely.",
+        "source": "roman-observatory"
+      },
+      "facts": [
+        {
+          "text": "Roman's high-gain antenna is steerable, so the observatory can keep sending data to Earth while the telescope points elsewhere.",
+          "source": "roman-observatory"
+        }
+      ],
+      "official": "roman-observatory"
+    },
+    {
+      "id": "bus",
+      "name": "Spacecraft bus",
+      "short": "Everything that is not the telescope.",
+      "blurb": {
+        "text": "The bus is the unglamorous half: power, propulsion, computers, radios, and the reaction wheels that turn the observatory and hold it still. None of it looks at the sky. All of it is what makes looking at the sky possible for the several years the survey needs.",
+        "source": "roman-observatory"
+      },
+      "facts": [
+        {
+          "text": "The spacecraft bus carries the power, propulsion, pointing and communications systems that support the telescope and its instruments.",
+          "source": "roman-observatory"
+        }
+      ],
+      "official": "roman-observatory"
+    }
+  ],
+  "shared_geometry": {
+    "text": "The Wide Field Instrument and the Coronagraph Instrument both sit inside this same housing. NASA's public model is of the outside of the observatory only, so there is no separate shape to highlight for each one.",
+    "source": "model-source"
+  },
+  "lightpath": {
+    "title": "Follow the light",
+    "intro": {
+      "text": "Seven steps from a star to a colour. The diagram is ours, drawn to explain the idea rather than to show the hardware.",
+      "source": "cgi-mission"
+    },
+    "schematic_warning": {
+      "text": "Schematic. The real instrument is inside the observatory, and the 3D model here only shows the outside.",
+      "source": "model-source"
+    },
+    "steps": [
+      {
+        "id": "arrive",
+        "title": "Light arrives",
+        "text": "Light from a distant star system enters the telescope. Two beams are drawn here: the star's, which is bright, and the planet's, which is the single thin line beside it. The real difference is far larger than any screen can show.",
+        "source": "cgi-mission"
+      },
+      {
+        "id": "inside",
+        "title": "Into the instrument",
+        "text": "The beam goes into the instrument bay. From here on, the picture is a diagram. The coronagraph sits inside a shell that NASA's public 3D model does not open, so nothing below is the real shape of anything.",
+        "source": "model-source"
+      },
+      {
+        "id": "mask",
+        "title": "The star is blocked",
+        "text": "Masks and stops inside the coronagraph swallow the starlight. This is the hard part of the whole mission, and it is why the instrument is flown as a technology demonstration rather than as a survey camera. The planet's thin beam survives.",
+        "source": "cgi-mission"
+      },
+      {
+        "id": "filters",
+        "title": "The filter wheel",
+        "text": "Four filters are installed. Three are supported observing modes: 575 nm, 730 nm and 825 nm. The fourth, at 660 nm, is physically on the wheel but was never characterised on the ground, so it is greyed out here. Installed, never tested.",
+        "source": "cgi-mission",
+        "source_note": "Mode table, Roman Coronagraph Instrument Primer, Coronagraph Participating Program, 8 January 2025."
+      },
+      {
+        "id": "detector",
+        "title": "The detector counts",
+        "text": "Behind each supported filter, the detector counts the photons that made it through. Three filters, three numbers. Only the 575 nm band is a formal requirement. The other two are best effort, which is a contractual term rather than a forecast.",
+        "source": "cgi-mission",
+        "source_note": "Mode table, Roman Coronagraph Instrument Primer, Coronagraph Participating Program, 8 January 2025."
+      },
+      {
+        "id": "colour",
+        "title": "Three numbers become a colour",
+        "text": "Brightness at three wavelengths across the visible range is, roughly speaking, a colour. Turn the three numbers into one swatch and you have the first visible colour ever measured for a planet around another star.",
+        "source": "cgi-mission"
+      },
+      {
+        "id": "finale",
+        "title": "A prediction, for now",
+        "text": "No exoplanet has ever had its visible colour measured. Every colour on the sibling site is a prediction from a model. That colour is a prediction. Roman turns predictions into measurements.",
+        "source": "cgi-mission"
+      }
+    ],
+    "bands": [
+      {
+        "nm": 575,
+        "width": "10 percent",
+        "role": "Imaging and polarimetry",
+        "supported": true,
+        "requirement": true
+      },
+      {
+        "nm": 660,
+        "width": "15 percent",
+        "role": "Installed, never characterised on the ground",
+        "supported": false,
+        "requirement": false
+      },
+      {
+        "nm": 730,
+        "width": "15 percent",
+        "role": "Slit and prism spectroscopy, about R equals 50",
+        "supported": true,
+        "requirement": false
+      },
+      {
+        "nm": 825,
+        "width": "10 percent",
+        "role": "Wide field imaging",
+        "supported": true,
+        "requirement": false
+      }
+    ],
+    "hero_planet": {
+      "status": "placeholder",
+      "name": null,
+      "hex": null,
+      "source": null,
+      "pending_text": "The hero planet for this step is still to be chosen from the Exoplanet Palette Roman target board. Until it is picked, this swatch stays empty rather than showing a colour we made up."
+    },
+    "diagram": {
+      "star": "star",
+      "planet": "planet",
+      "aperture": "aperture",
+      "bay": "instrument bay",
+      "bay_note": "schematic only",
+      "mask": "mask stops the star",
+      "wheel": "filter wheel",
+      "not_tested": "not tested",
+      "counts": "three counts",
+      "bands_sum": "575 + 730 + 825",
+      "swatch_pending": "swatch pending",
+      "hero_pending": "hero planet to be chosen"
+    }
+  },
+  "about": {
+    "title": "About this site",
+    "what": {
+      "text": "An unofficial, affectionate model of NASA's Roman Space Telescope, built from NASA's own public domain 3D model and rendered as voxels. It is a companion to the Exoplanet Palette, which collects predicted colours for planets around other stars. This site is about the instrument that could turn those predictions into measurements.",
+      "source": "model-source"
+    },
+    "disclaimer": {
+      "text": "This site is not affiliated with, endorsed by, or produced by NASA. It uses no NASA branding or insignia. It is a personal tribute built by someone who likes the telescope.",
+      "source": "model-source"
+    },
+    "model_credit": {
+      "text": "3D model: Nancy Grace Roman Space Telescope (A), by NASA and Christopher R. Meaney. NASA 3D resources are in the public domain. Credit NASA.",
+      "source": "model-source"
+    },
+    "rendering": {
+      "text": "The geometry is NASA's, converted to voxels on a shared grid. The colour palette, the shading and the light path diagram are ours. Nothing here should be read as the real appearance of the observatory.",
+      "source": "model-source"
+    },
+    "nasa_own": {
+      "text": "NASA has its own interactive tour of the observatory, with photographs and the official descriptions of every part.",
+      "source": "nasa-interactive"
+    }
+  },
+  "links": {
+    "sibling": {
+      "label": "Exoplanet Palette",
+      "url": null,
+      "path": "/roman",
+      "note": "The sibling site's domain is still an open decision, so the deep link is not wired yet. Set url here and the finale button appears."
+    },
+    "source_code": {
+      "label": "Source code",
+      "url": null,
+      "note": "Set once the repository has a public home."
+    }
+  }
+}

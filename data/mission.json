@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "launch": {
+    "label": "Launch, no later than",
+    "display": "May 2027",
+    "target_utc": "2027-05-01T00:00:00Z",
+    "basis": "NASA states Roman is on track to launch no later than May 2027. This is a commitment date and not a scheduled launch time, so the clock counts down to the start of that month.",
+    "retrieved": "2026-08",
+    "source": "https://science.nasa.gov/mission/roman-space-telescope/",
+    "source_label": "NASA, Nancy Grace Roman Space Telescope mission page"
+  },
+  "no_js": "Roman is expected to launch no later than May 2027."
+}
