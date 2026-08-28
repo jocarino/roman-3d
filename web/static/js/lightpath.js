@@ -70,11 +70,39 @@ export class LightPath {
     this.warning.textContent = schematic ? this.data.schematic_warning.text : '';
     this.dialog.classList.toggle('is-schematic', schematic);
 
+    const last = this.index === this.data.steps.length - 1;
     this.root.querySelector('#lightpath-back').disabled = this.index === 0;
-    this.root.querySelector('#lightpath-next').disabled =
-      this.index === this.data.steps.length - 1;
+    this.root.querySelector('#lightpath-next').disabled = last;
+    // The way onward belongs at the end, not beside every step.
+    const finale = this.root.querySelector('#lightpath-finale');
+    if (finale) finale.hidden = !last;
 
     this.stage.replaceChildren(this._diagram(step.id));
+    this._renderSources(step);
+  }
+
+  /**
+   * Every step's claim carries its source, the same way the component panels do.
+   * The data was always in facts.json; this overlay just used to ignore it.
+   */
+  _renderSources(step) {
+    const holder = this.root.querySelector('#lightpath-sources');
+    if (!holder) return;
+    const source = this.facts.sources[step.source];
+    holder.replaceChildren();
+    if (!source) return;
+    const link = document.createElement('a');
+    link.className = 'step-source';
+    link.href = source.url;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.textContent = source.label;
+    if (step.source_note) link.title = step.source_note;
+    link.setAttribute(
+      'aria-label',
+      step.source_note ? `Source: ${source.label}. ${step.source_note}` : `Source: ${source.label}`
+    );
+    holder.append(link);
   }
 
   _diagram(id) {
@@ -179,25 +207,38 @@ export class LightPath {
     this._text(svg, 160, 20, this.data.diagram.counts);
   }
 
-  _colour(svg) {
+  /** The five-stop palette the sibling catalogue publishes for this planet. */
+  _swatchStrip(svg, y, height) {
     const hero = this.data.hero_planet;
-    this._box(svg, 108, 34, 104, 74, hero.hex ? 'swatch' : 'swatch swatch-pending');
-    if (hero.hex) {
+    if (!hero.hex) {
+      this._box(svg, 108, y, 104, height, 'swatch swatch-pending');
+      return;
+    }
+    const stops = hero.palette && hero.palette.length ? hero.palette : [hero.hex];
+    const width = 34;
+    const left = 160 - (width * stops.length) / 2;
+    stops.forEach((hex, i) => {
+      const cell = this._box(svg, left + i * width, y, width, height, 'swatch-filled');
       // A fill attribute, not a style attribute: the deploy's CSP forbids
       // inline styles, and a presentation attribute is not one.
-      svg.lastElementChild.setAttribute('fill', hero.hex);
-      this._text(svg, 160, 126, hero.name, 'diagram-label');
-    } else {
-      this._text(svg, 160, 126, this.data.diagram.swatch_pending, 'diagram-small');
-    }
-    this._text(svg, 160, 22, this.data.diagram.bands_sum, 'diagram-small');
+      cell.setAttribute('fill', hex);
+    });
+  }
+
+  _colour(svg) {
+    const hero = this.data.hero_planet;
+    this._text(svg, 160, 20, this.data.diagram.bands_sum, 'diagram-small');
+    this._swatchStrip(svg, 34, 62);
+    if (!hero.hex) return;
+    this._text(svg, 160, 114, hero.short_name || hero.name, 'diagram-label');
+    this._text(svg, 160, 132, this.data.diagram.predicted, 'diagram-small');
   }
 
   _finale(svg) {
     const hero = this.data.hero_planet;
-    this._box(svg, 122, 30, 76, 60, hero.hex ? 'swatch' : 'swatch swatch-pending');
-    if (hero.hex) svg.lastElementChild.setAttribute('fill', hero.hex);
-    const caption = hero.hex ? hero.name : this.data.diagram.hero_pending;
-    this._text(svg, 160, 112, caption, 'diagram-small');
+    this._swatchStrip(svg, 26, 60);
+    if (!hero.hex) return;
+    this._text(svg, 160, 106, hero.short_name || hero.name, 'diagram-label');
+    this._text(svg, 160, 126, this.data.diagram.predicted, 'diagram-small');
   }
 }

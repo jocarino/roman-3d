@@ -36,6 +36,9 @@ export class Controls {
     this.velocity = { azimuth: 0, elevation: 0 };
 
     this.autoOrbit = !reducedMotion;
+    // True once the user has orbited, zoomed or picked a view. The idle
+    // auto-orbit does not count: nothing to put back if you have not touched it.
+    this.interacted = false;
     this.dragging = false;
     this.pointerId = null;
     this.last = { x: 0, y: 0 };
@@ -54,6 +57,7 @@ export class Controls {
       if (event.button !== 0 && event.pointerType === 'mouse') return;
       this.dragging = true;
       this.autoOrbit = false;
+      this.interacted = true;
       this.pointerId = event.pointerId;
       this.last = { x: event.clientX, y: event.clientY };
       el.setPointerCapture(event.pointerId);
@@ -89,6 +93,7 @@ export class Controls {
       (event) => {
         event.preventDefault();
         this.autoOrbit = false;
+        this.interacted = true;
         const factor = Math.exp(-event.deltaY * 0.0016);
         this.target.zoom = clamp(this.target.zoom * factor, MIN_ZOOM, MAX_ZOOM);
       },
@@ -109,6 +114,7 @@ export class Controls {
       const [a, b] = [...active.values()];
       const spread = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
       if (this.pinch) {
+        this.interacted = true;
         this.target.zoom = clamp((this.pinch.zoom * spread) / this.pinch.spread, MIN_ZOOM, MAX_ZOOM);
       } else {
         this.pinch = { spread, zoom: this.target.zoom };
@@ -162,12 +168,14 @@ export class Controls {
 
   nudge(dAzimuth, dElevation) {
     this.autoOrbit = false;
+    this.interacted = true;
     this.target.azimuth += dAzimuth;
     this.target.elevation = clamp(this.target.elevation + dElevation, MIN_ELEVATION, MAX_ELEVATION);
   }
 
   zoomBy(factor) {
     this.autoOrbit = false;
+    this.interacted = true;
     this.target.zoom = clamp(this.target.zoom * factor, MIN_ZOOM, MAX_ZOOM);
   }
 
@@ -175,6 +183,7 @@ export class Controls {
     const view = SNAP_VIEWS[name];
     if (!view) return;
     this.autoOrbit = false;
+    this.interacted = true;
     this.velocity.azimuth = 0;
     this.velocity.elevation = 0;
     // Take the short way round rather than unwinding several turns.
@@ -188,10 +197,16 @@ export class Controls {
 
   reset({ notify = true } = {}) {
     this.autoOrbit = !this.reducedMotion;
+    this.interacted = false;
     this.target = { azimuth: 24, elevation: 18, zoom: 1 };
     this.velocity = { azimuth: 0, elevation: 0 };
     if (this.reducedMotion) this.apply(true);
     if (notify) this.onReset?.();
+  }
+
+  /** Still settling from a drag, so the model is moving on its own. */
+  get coasting() {
+    return Math.abs(this.velocity.azimuth) > 0.05 || Math.abs(this.velocity.elevation) > 0.05;
   }
 
   update(delta) {

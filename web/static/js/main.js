@@ -66,7 +66,7 @@ async function boot() {
   new ResizeObserver(resize).observe(stageWrap);
   resize();
 
-  wirePointer(canvas, observatory, ui);
+  wirePointer(canvas, observatory, ui, controls);
   wireKeys(controls, ui, lightPath);
 
   if (status) status.hidden = true;
@@ -83,6 +83,7 @@ async function boot() {
     const delta = Math.min((now - previous) / 1000, 0.1);
     previous = now;
     controls.update(delta);
+    ui.refreshReset();
     observatory.render();
     window.requestAnimationFrame(frame);
   };
@@ -122,13 +123,19 @@ function wireCopy(facts) {
   if (hint) hint.textContent = facts.ui.controls_hint;
 }
 
-function wirePointer(canvas, observatory, ui) {
+function wirePointer(canvas, observatory, ui, controls) {
   let pending = null;
   let raf = 0;
 
   const flush = () => {
     raf = 0;
     if (!pending) return;
+    // Do not try to name a part while the telescope is being spun. The
+    // highlight chases the cursor across the model and reads as flicker.
+    if (controls.dragging || controls.coasting) {
+      pending = null;
+      return;
+    }
     const rect = canvas.getBoundingClientRect();
     const group = observatory.pick(
       pending.clientX - rect.left,
@@ -151,6 +158,7 @@ function wirePointer(canvas, observatory, ui) {
   let downAt = null;
   canvas.addEventListener('pointerdown', (event) => {
     downAt = { x: event.clientX, y: event.clientY, t: performance.now() };
+    ui.setHover(-1, 0, 0);
   });
   canvas.addEventListener('pointerup', (event) => {
     if (!downAt) return;

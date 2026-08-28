@@ -45,24 +45,32 @@
     "nasa-interactive": {
       "label": "NASA Goddard, Roman interactive observatory",
       "url": "https://roman.gsfc.nasa.gov/interactive/"
+    },
+    "palette-47-uma-b": {
+      "label": "Exoplanet Palette, 47 Ursae Majoris b",
+      "url": "https://exoplanets.joaogveloso.com/planet/47-uma-b"
+    },
+    "palette-roman-board": {
+      "label": "Exoplanet Palette, the Roman target board",
+      "url": "https://exoplanets.joaogveloso.com/roman"
     }
   },
   "site": {
     "title": "Pixel Observatory",
     "tagline": {
-      "text": "NASA's Roman Space Telescope, rebuilt voxel by voxel.",
+      "text": "NASA's Roman Space Telescope, rebuilt pixel by pixel.",
       "source": "model-source"
     },
     "intro": {
-      "text": "This is NASA's own 3D model of the Roman Space Telescope, rebuilt out of cubes so you can orbit it, pull it apart and follow the light through it. The shapes are NASA's. The colours and the light path are ours, drawn as a diagram rather than a photograph.",
+      "text": "This is NASA's own 3D model of the Roman Space Telescope, rebuilt out of little cubes so you can orbit it, pull it apart and follow the light through it. The shapes are NASA's. The colours and the light path are ours, drawn as a diagram rather than a photograph.",
       "source": "model-source"
     },
     "honesty": {
       "text": "Stylised, not photographic. The geometry comes from NASA's public domain model of the observatory exterior. Colours are a chosen palette and the light path is a schematic, because the real instruments sit inside a shell this model does not open.",
       "source": "model-source"
     },
-    "voxel": {
-      "text": "A voxel is a pixel with a third dimension: a small cube sitting on a grid, the way a pixel is a small square sitting on a screen. This observatory is built from about 123,000 of them, and you are looking at the ones on the outside.",
+    "pixels": {
+      "text": "Every surface here is built from little cubes on a grid: pixels with a third dimension. There are about 123,000 of them, and you are looking at the ones on the outside.",
       "source": "model-source"
     }
   },
@@ -76,7 +84,7 @@
     "view_top": "Top",
     "explode_label": "Pull it apart",
     "explode_hint": "Slide to separate the major parts, then slide back.",
-    "lightpath_open": "Follow the light",
+    "lightpath_open": "How Roman will observe a planet",
     "lightpath_close": "Close",
     "lightpath_next": "Next",
     "lightpath_back": "Back",
@@ -95,12 +103,13 @@
     "frame_label": "Orbit frame",
     "sibling_link": "Exoplanet Palette",
     "source_code": "Source code",
-    "canvas_label": "Three-dimensional voxel model of the Roman Space Telescope. Drag to orbit it.",
+    "canvas_label": "Three-dimensional pixel-art model of the Roman Space Telescope. Drag to orbit it.",
     "noscript": "This page needs JavaScript for the 3D model. Everything the model would have told you is written out below.",
-    "lightpath_finale": "See the colours this instrument could measure",
+    "lightpath_finale": "See this planet on the Exoplanet Palette",
     "lightpath_hint": "Seven steps from a star to a colour",
-    "reset_label": "Reset view",
-    "reset_title": "Put the telescope back the way it started"
+    "reset_label": "Reset",
+    "reset_title": "Put the telescope back the way it started",
+    "reset_idle_title": "Nothing to reset yet"
   },
   "components": [
     {
@@ -252,7 +261,7 @@
     "source": "model-source"
   },
   "lightpath": {
-    "title": "Follow the light",
+    "title": "How Roman will observe a planet",
     "intro": {
       "text": "Seven steps from a star to a colour. The diagram is ours, drawn to explain the idea rather than to show the hardware.",
       "source": "cgi-mission"
@@ -297,14 +306,14 @@
       {
         "id": "colour",
         "title": "Three numbers become a colour",
-        "text": "Brightness at three wavelengths across the visible range is, roughly speaking, a colour. Turn the three numbers into one swatch and you have the first visible colour ever measured for a planet around another star.",
-        "source": "cgi-mission"
+        "text": "Brightness at three wavelengths across the visible range is, roughly speaking, a colour. Turn the three numbers into one swatch and you have the first visible colour ever measured for a planet around another star. Here is 47 Ursae Majoris b, as a model predicts Roman would see it.",
+        "source": "palette-47-uma-b"
       },
       {
         "id": "finale",
         "title": "A prediction, for now",
-        "text": "No exoplanet has ever had its visible colour measured. Every colour on the sibling site is a prediction from a model. That colour is a prediction. Roman turns predictions into measurements.",
-        "source": "cgi-mission"
+        "text": "No exoplanet has ever had its visible colour measured. That swatch is a prediction from a model, and so is every colour on the sibling site. Roman turns predictions into measurements.",
+        "source": "palette-roman-board"
       }
     ],
     "bands": [
@@ -338,11 +347,20 @@
       }
     ],
     "hero_planet": {
-      "status": "placeholder",
-      "name": null,
-      "hex": null,
-      "source": null,
-      "pending_text": "The hero planet for this step is still to be chosen from the Exoplanet Palette Roman target board. Until it is picked, this swatch stays empty rather than showing a colour we made up."
+      "status": "chosen",
+      "name": "47 Ursae Majoris b",
+      "short_name": "47 UMa b",
+      "hex": "#d2cac4",
+      "palette": [
+        "#342d28",
+        "#62554b",
+        "#d2cac4",
+        "#c1b6ae",
+        "#e5e0dc"
+      ],
+      "url": "https://exoplanets.joaogveloso.com/planet/47-uma-b",
+      "text": "47 Ursae Majoris b is a cool gas giant about 45 light years away, on the shortlist of planets Roman's coronagraph could plausibly see in reflected light. This swatch is what a model says it would look like through that instrument: pale, slightly warm, water and ammonia clouds. Nobody has measured it.",
+      "source": "palette-47-uma-b"
     },
     "diagram": {
       "star": "star",
@@ -355,14 +373,13 @@
       "not_tested": "not tested",
       "counts": "three counts",
       "bands_sum": "575 + 730 + 825",
-      "swatch_pending": "swatch pending",
-      "hero_pending": "hero planet to be chosen"
+      "predicted": "predicted colour"
     }
   },
   "about": {
     "title": "About this site",
     "what": {
-      "text": "An unofficial, affectionate model of NASA's Roman Space Telescope, built from NASA's own public domain 3D model and rendered as voxels. It is a companion to the Exoplanet Palette, which collects predicted colours for planets around other stars. This site is about the instrument that could turn those predictions into measurements.",
+      "text": "An unofficial, affectionate model of NASA's Roman Space Telescope, built from NASA's own public domain 3D model and rebuilt pixel by pixel. It is a companion to the Exoplanet Palette, which collects predicted colours for planets around other stars. This site is about the instrument that could turn those predictions into measurements.",
       "source": "model-source"
     },
     "disclaimer": {
@@ -374,7 +391,7 @@
       "source": "model-source"
     },
     "rendering": {
-      "text": "The geometry is NASA's, converted to voxels on a shared grid. The colour palette, the shading and the light path diagram are ours. Nothing here should be read as the real appearance of the observatory.",
+      "text": "The geometry is NASA's, rebuilt as little cubes on a shared grid. The colour palette, the shading and the light path diagram are ours. Nothing here should be read as the real appearance of the observatory.",
       "source": "model-source"
     },
     "nasa_own": {
@@ -385,9 +402,8 @@
   "links": {
     "sibling": {
       "label": "Exoplanet Palette",
-      "url": null,
-      "path": "/roman",
-      "note": "The sibling site's domain is still an open decision, so the deep link is not wired yet. Set url here and the finale button appears."
+      "url": "https://exoplanets.joaogveloso.com",
+      "path": "/roman"
     },
     "source_code": {
       "label": "Source code",

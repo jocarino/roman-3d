@@ -80,8 +80,28 @@ export class UI {
   }
 
   _wireReset() {
-    const button = this.root.querySelector('#reset-view');
-    button?.addEventListener('click', () => this.resetView());
+    this.resetButton = this.root.querySelector('#reset-view');
+    this.resetButton?.addEventListener('click', () => this.resetView());
+    this.resetEnabled = null;
+    this.refreshReset();
+  }
+
+  /**
+   * Enable Reset only once there is something to put back: a view chosen, the
+   * model orbited or zoomed, the exploded view opened, or a part selected.
+   * Called every frame, so it only touches the DOM when the answer changes.
+   */
+  refreshReset() {
+    if (!this.resetButton) return;
+    const moved = Boolean(this.controls?.interacted);
+    const exploded = Number(this.explodeSlider?.value || 0) > 0;
+    const can = moved || exploded || this.selected >= 0;
+    if (can === this.resetEnabled) return;
+    this.resetEnabled = can;
+    this.resetButton.disabled = !can;
+    this.resetButton.title = can
+      ? this.facts.ui.reset_title
+      : this.facts.ui.reset_idle_title;
   }
 
   /** Put everything back: camera, exploded view, selection, pressed states. */

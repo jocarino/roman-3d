@@ -49,7 +49,11 @@
   <div class="hud hud-bottom">
     <nav class="views" aria-label="{{UI_VIEWS_LABEL}}">
       <span class="hud-legend">{{UI_VIEWS_LABEL}}</span>
-      {{VIEW_BUTTONS}}
+      <div class="views-row">
+        {{VIEW_BUTTONS}}
+        <button type="button" id="reset-view" class="view-button view-reset"
+                title="{{UI_RESET_IDLE_TITLE}}" disabled>{{UI_RESET_LABEL}}</button>
+      </div>
     </nav>
 
     <div class="explode">
@@ -60,7 +64,6 @@
     </div>
 
     <div class="actions">
-      <button type="button" id="reset-view" class="action" title="{{UI_RESET_TITLE}}">{{UI_RESET_LABEL}}</button>
       <button type="button" id="lightpath-open" class="action action-primary action-stacked">
         <span class="action-label">{{UI_LIGHTPATH_OPEN}}</span>
         <span class="action-sub">{{UI_LIGHTPATH_HINT}}</span>
@@ -83,12 +86,13 @@
       <p id="lightpath-warning" class="schematic-warning" hidden></p>
       <h2 id="lightpath-title" class="overlay-title"></h2>
       <p id="lightpath-body" class="overlay-body"></p>
+      <p id="lightpath-sources" class="step-sources"></p>
       <div class="lightpath-nav">
         <button type="button" id="lightpath-back" class="action">{{UI_LIGHTPATH_BACK}}</button>
         <span id="lightpath-counter" class="lightpath-counter"></span>
         <button type="button" id="lightpath-next" class="action action-primary">{{UI_LIGHTPATH_NEXT}}</button>
       </div>
-      {{LIGHTPATH_FINALE_LINK}}
+      <div id="lightpath-finale" hidden>{{LIGHTPATH_FINALE_LINK}}</div>
     </div>
   </div>
 
@@ -97,7 +101,7 @@
       <button type="button" class="overlay-close" data-close aria-label="{{UI_ABOUT_CLOSE}}">x</button>
       <h2 id="info-title" class="overlay-title">{{UI_INFO_LABEL}}</h2>
       <p class="overlay-body">{{INTRO}}</p>
-      <p class="overlay-body">{{VOXEL}}</p>
+      <p class="overlay-body">{{PIXELS}}</p>
       <p class="overlay-body">{{HONESTY}}</p>
       <p class="overlay-note">{{COUNTDOWN_BASIS}}
         <a href="{{COUNTDOWN_SOURCE_URL}}" rel="noopener" target="_blank">{{COUNTDOWN_SOURCE_LABEL}}</a>

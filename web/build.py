@@ -73,7 +73,8 @@ def view_buttons(facts: dict) -> str:
         f' aria-pressed="false" accesskey="{i + 1}">{esc(facts["ui"][f"view_{name}"])}</button>'
         for i, name in enumerate(order)
     ]
-    return '<div class="views-row">' + "".join(buttons) + "</div>"
+    # The row wrapper lives in the template, so Reset can sit inside it.
+    return "".join(buttons)
 
 
 def parts_static(facts: dict, mapping) -> str:
@@ -181,7 +182,7 @@ def render_page(facts: dict, mission: dict, mapping, provenance: dict) -> str:
         "TAGLINE": facts["site"]["tagline"]["text"],
         "INTRO": facts["site"]["intro"]["text"],
         "HONESTY": facts["site"]["honesty"]["text"],
-        "VOXEL": facts["site"]["voxel"]["text"],
+        "PIXELS": facts["site"]["pixels"]["text"],
         "CANVAS_LABEL": ui["canvas_label"],
         "NOSCRIPT_NOTE": ui["noscript"],
         "COUNTDOWN_LABEL": mission["launch"]["label"],
