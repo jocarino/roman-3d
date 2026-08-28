@@ -17,9 +17,21 @@ async function json(path) {
   return response.json();
 }
 
-async function boot() {
-  document.documentElement.classList.remove('no-js');
+/** Wait for the next paint, but never hang if frames are not being served. */
+function nextPaint() {
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      resolve();
+    };
+    requestAnimationFrame(() => requestAnimationFrame(finish));
+    setTimeout(finish, 80);
+  });
+}
 
+async function boot() {
   const [facts, mission] = await Promise.all([json('facts.json'), json('mission.json')]);
   new Countdown({ mission, root });
   wireCopy(facts);
@@ -43,6 +55,7 @@ async function boot() {
 
   const observatory = new Observatory(canvas, model, { outline: true });
   const controls = new Controls(observatory, canvas, { reducedMotion });
+  observatory.pendingGeometry = true;
   const ui = new UI({ facts, mission, root, observatory, controls });
   // Double click and the 0 key reset the camera; the exploded view, the open
   // panel and the pressed view button have to come back with it.
@@ -82,6 +95,14 @@ async function boot() {
 
   wirePointer(canvas, observatory, ui, controls);
   wireKeys(controls, ui, lightPath);
+
+  // Put the sky on screen before the model. Walking the voxel bundle into
+  // typed arrays takes long enough to be felt, and holding the whole page back
+  // for it means the first thing a visitor sees is nothing at all.
+  observatory.render();
+  await nextPaint();
+  observatory.buildGeometry();
+  observatory.pendingGeometry = false;
 
   if (status) status.hidden = true;
   document.body.classList.add('is-ready');

@@ -591,6 +591,8 @@ body.panel-open .hud-bottom { display: none; }
 body.is-fallback .views,
 body.is-fallback .explode { display: none; }
 
+/* Hidden by default, because JavaScript is the common case and the page must
+   not flash the reading copy before a deferred module gets to run. */
 #fallback-content { display: none; }
 .noscript-note {
   position: relative;
@@ -602,9 +604,20 @@ body.is-fallback .explode { display: none; }
   font-size: 13px;
 }
 
-html.no-js #app { display: none; }
-html.no-js body { overflow: auto; }
-html.no-js #fallback-content {
+/* A browser with scripting on never parses noscript content into the DOM, so
+   this marker exists only when scripting is off. That replaces the old
+   html.no-js class, which had to be stripped by JavaScript and therefore
+   painted the whole parts library first on every load. No inline script, which
+   matters: the deploy's policy is script-src 'self'. */
+html:has(#no-js) #app { display: none; }
+html:has(#no-js) body { overflow: auto; }
+
+/* And if boot throws, fall back to the words rather than a black rectangle. */
+body.is-broken #app { display: none; }
+body.is-broken { overflow: auto; }
+
+html:has(#no-js) #fallback-content,
+body.is-broken #fallback-content {
   display: block;
   max-width: 720px;
   margin: 0 auto;

@@ -208,7 +208,7 @@ export class Observatory {
     this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 4000);
 
     this._buildRamp();
-    this._buildMesh();
+    this._prepareMesh();
     this._buildStars();
     this._buildPost();
 
@@ -236,17 +236,13 @@ export class Observatory {
     this.shades = shades;
   }
 
-  _buildMesh() {
-    const arrays = buildMeshArrays(this.model);
-    this.quadCount = arrays.quads;
-
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(arrays.position, 3));
-    geometry.setAttribute('normal', new THREE.BufferAttribute(arrays.normal, 3, true));
-    geometry.setAttribute('aGroup', new THREE.BufferAttribute(arrays.group, 1));
-    geometry.setAttribute('aColor', new THREE.BufferAttribute(arrays.color, 1));
-    geometry.setIndex(new THREE.BufferAttribute(arrays.index, 1));
-
+  /**
+   * Everything the renderer needs before it can draw a frame, none of which is
+   * expensive: uniforms, materials, explode vectors, the points the camera
+   * frames against. The geometry is deliberately not built here, so the sky and
+   * the interface can be on screen while it is.
+   */
+  _prepareMesh() {
     const explode = [];
     for (let i = 0; i < MAX_GROUPS; i += 1) {
       const g = this.groups[i];
@@ -289,8 +285,27 @@ export class Observatory {
     });
 
     this._buildFitPoints();
+    this.material = material;
+  }
 
-    this.mesh = new THREE.Mesh(geometry, material);
+  /**
+   * The expensive half: roughly 200k quads walked out of the voxel bundle into
+   * typed arrays. Call it after a frame has painted, or the first thing the
+   * visitor gets is a locked main thread.
+   */
+  buildGeometry() {
+    if (this.mesh) return;
+    const arrays = buildMeshArrays(this.model);
+    this.quadCount = arrays.quads;
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(arrays.position, 3));
+    geometry.setAttribute('normal', new THREE.BufferAttribute(arrays.normal, 3, true));
+    geometry.setAttribute('aGroup', new THREE.BufferAttribute(arrays.group, 1));
+    geometry.setAttribute('aColor', new THREE.BufferAttribute(arrays.color, 1));
+    geometry.setIndex(new THREE.BufferAttribute(arrays.index, 1));
+
+    this.mesh = new THREE.Mesh(geometry, this.material);
     this.mesh.position.set(-this.dims[0] / 2, -this.dims[1] / 2, -this.dims[2] / 2);
     this.mesh.frustumCulled = false;
     this.scene.add(this.mesh);
@@ -583,6 +598,7 @@ export class Observatory {
    * Costs one extra draw, so callers should throttle to once per frame.
    */
   pick(cssX, cssY, cssWidth, cssHeight) {
+    if (!this.mesh) return -1;
     const x = Math.round((cssX / Math.max(cssWidth, 1)) * this.size.width);
     const y = Math.round((1 - cssY / Math.max(cssHeight, 1)) * this.size.height);
     if (x < 0 || y < 0 || x >= this.size.width || y >= this.size.height) return -1;
@@ -602,8 +618,8 @@ export class Observatory {
   }
 
   dispose() {
-    this.mesh.geometry.dispose();
-    this.mesh.material.dispose();
+    this.mesh?.geometry.dispose();
+    this.material?.dispose();
     this.pickMaterial.dispose();
     this.target.dispose();
     this.pickTarget.dispose();
