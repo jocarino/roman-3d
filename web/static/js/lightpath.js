@@ -7,6 +7,11 @@
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
+// The steps that draw a made-up picture of the instrument. Steps 6 and 7 show a
+// colour swatch, which is not a diagram of hardware, so the honesty label would
+// be answering a question nobody asked.
+const SCHEMATIC_STEPS = new Set(['inside', 'mask', 'filters', 'detector']);
+
 export class LightPath {
   constructor({ facts, root, observatory, controls, onOpen, onClose }) {
     this.facts = facts;
@@ -65,9 +70,11 @@ export class LightPath {
       `${this.facts.ui.lightpath_step} ${this.index + 1} ${this.facts.ui.lightpath_of} ` +
       `${this.data.steps.length}`;
 
-    const schematic = this.index >= 1;
-    this.warning.hidden = !schematic;
+    // The label keeps its slot on every step rather than being hidden, so the
+    // buttons underneath do not jump 30px when it appears and disappears.
+    const schematic = SCHEMATIC_STEPS.has(step.id);
     this.warning.textContent = schematic ? this.data.schematic_warning.text : '';
+    this.warning.classList.toggle('is-empty', !schematic);
     this.dialog.classList.toggle('is-schematic', schematic);
 
     const last = this.index === this.data.steps.length - 1;
@@ -79,6 +86,20 @@ export class LightPath {
 
     this.stage.replaceChildren(this._diagram(step.id));
     this._renderSources(step);
+    this._renderDots();
+  }
+
+  /** One dot per step, so the length of the thing is visible at a glance. */
+  _renderDots() {
+    const holder = this.root.querySelector('#lightpath-dots');
+    if (!holder) return;
+    holder.replaceChildren(
+      ...this.data.steps.map((_, i) => {
+        const dot = document.createElement('span');
+        dot.className = i === this.index ? 'dot dot-on' : 'dot';
+        return dot;
+      })
+    );
   }
 
   /**

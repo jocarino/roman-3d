@@ -61,6 +61,7 @@ async function boot() {
   const stageWrap = root.querySelector('#app-stage');
   const resize = () => {
     const rect = stageWrap.getBoundingClientRect();
+    controls.setPortrait(rect.height > rect.width);
     observatory.resize(rect.width, rect.height);
   };
   new ResizeObserver(resize).observe(stageWrap);
@@ -160,6 +161,20 @@ function wirePointer(canvas, observatory, ui, controls) {
     downAt = { x: event.clientX, y: event.clientY, t: performance.now() };
     ui.setHover(-1, 0, 0);
   });
+  // Double click resets the view, but only over empty sky. Over the telescope
+  // it used to reset the camera AND open a panel, so the documented gesture was
+  // unusable across most of the screen.
+  canvas.addEventListener('dblclick', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    const group = observatory.pick(
+      event.clientX - rect.left,
+      event.clientY - rect.top,
+      rect.width,
+      rect.height
+    );
+    if (group < 0) controls.reset();
+  });
+
   canvas.addEventListener('pointerup', (event) => {
     if (!downAt) return;
     const moved = Math.hypot(event.clientX - downAt.x, event.clientY - downAt.y);

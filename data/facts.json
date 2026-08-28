@@ -26,10 +26,6 @@
       "label": "NASA, Roman Coronagraph Instrument",
       "url": "https://science.nasa.gov/mission/roman-space-telescope/coronagraph/"
     },
-    "cgi-goddard": {
-      "label": "NASA Goddard, Roman Coronagraph Instrument",
-      "url": "https://roman.gsfc.nasa.gov/coronagraph.html"
-    },
     "naming": {
       "label": "NASA news release, telescope named for Nancy Grace Roman",
       "url": "https://www.nasa.gov/news-release/nasa-telescope-named-for-mother-of-hubble-nancy-grace-roman/"
@@ -53,6 +49,14 @@
     "palette-roman-board": {
       "label": "Exoplanet Palette, the Roman target board",
       "url": "https://exoplanets.joaogveloso.com/roman"
+    },
+    "cgi-primer": {
+      "label": "Roman Coronagraph Instrument Primer, Coronagraph Participating Program",
+      "url": "https://roman.ipac.caltech.edu/docs/RomanCoronagraphPrimer_Current.pdf"
+    },
+    "cgi-kasdin-2021": {
+      "label": "Kasdin, Bailey et al. 2021, Proc. SPIE 11443",
+      "url": "https://arxiv.org/abs/2103.01980"
     }
   },
   "site": {
@@ -203,22 +207,22 @@
       "facts": [
         {
           "text": "Roman's Coronagraph Instrument supports three visible bandpasses: 575 nm at 10 percent width for imaging and polarimetry, 730 nm at 15 percent width for slit and prism spectroscopy at about R equals 50, and 825 nm at 10 percent width for wide field imaging.",
-          "source": "cgi-mission",
+          "source": "cgi-primer",
           "source_note": "Mode table, Roman Coronagraph Instrument Primer, Coronagraph Participating Program, 8 January 2025."
         },
         {
           "text": "A fourth filter at 660 nm and 15 percent width is physically installed on the filter wheel but was never characterised on the ground, so it is not a supported observing mode. Installed, never tested, rather than absent.",
-          "source": "cgi-mission",
-          "source_note": "Mode table, Roman Coronagraph Instrument Primer, Coronagraph Participating Program, 8 January 2025."
+          "source": "cgi-kasdin-2021",
+          "source_note": "Kasdin, Bailey et al. 2021, Proc. SPIE 11443: the Band 2 hardware is installed but will not be tested on the ground, so it is not an officially supported observing mode."
         },
         {
           "text": "Only Band 1 at 575 nm with the hybrid Lyot coronagraph is a formal requirement. The other bands are best effort, which is a contractual term and not a prediction that they will not happen.",
-          "source": "cgi-mission",
+          "source": "cgi-primer",
           "source_note": "Mode table, Roman Coronagraph Instrument Primer, Coronagraph Participating Program, 8 January 2025."
         },
         {
           "text": "The Coronagraph Instrument is a technology demonstration. Which planets it observes, and when, is not a published schedule.",
-          "source": "cgi-goddard"
+          "source": "cgi-mission"
         }
       ],
       "official": "cgi-mission"
@@ -293,14 +297,14 @@
         "id": "filters",
         "title": "The filter wheel",
         "text": "Four filters are installed. Three are supported observing modes: 575 nm, 730 nm and 825 nm. The fourth, at 660 nm, is physically on the wheel but was never characterised on the ground, so it is greyed out here. Installed, never tested.",
-        "source": "cgi-mission",
-        "source_note": "Mode table, Roman Coronagraph Instrument Primer, Coronagraph Participating Program, 8 January 2025."
+        "source": "cgi-kasdin-2021",
+        "source_note": "Kasdin, Bailey et al. 2021, Proc. SPIE 11443: the Band 2 hardware is installed but will not be tested on the ground, so it is not an officially supported observing mode."
       },
       {
         "id": "detector",
         "title": "The detector counts",
         "text": "Behind each supported filter, the detector counts the photons that made it through. Three filters, three numbers. Only the 575 nm band is a formal requirement. The other two are best effort, which is a contractual term rather than a forecast.",
-        "source": "cgi-mission",
+        "source": "cgi-primer",
         "source_note": "Mode table, Roman Coronagraph Instrument Primer, Coronagraph Participating Program, 8 January 2025."
       },
       {

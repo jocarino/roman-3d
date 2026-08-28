@@ -83,10 +83,13 @@
       <button type="button" class="overlay-close" data-close aria-label="{{UI_LIGHTPATH_CLOSE}}">x</button>
       <p class="overlay-kicker">{{LIGHTPATH_TITLE}}</p>
       <div id="lightpath-stage" class="lightpath-stage"></div>
-      <p id="lightpath-warning" class="schematic-warning" hidden></p>
-      <h2 id="lightpath-title" class="overlay-title"></h2>
-      <p id="lightpath-body" class="overlay-body"></p>
-      <p id="lightpath-sources" class="step-sources"></p>
+      <div class="lightpath-copy">
+        <p id="lightpath-warning" class="schematic-warning is-empty"></p>
+        <h2 id="lightpath-title" class="overlay-title"></h2>
+        <p id="lightpath-body" class="overlay-body"></p>
+        <p id="lightpath-sources" class="step-sources"></p>
+      </div>
+      <div id="lightpath-dots" class="lightpath-dots" aria-hidden="true"></div>
       <div class="lightpath-nav">
         <button type="button" id="lightpath-back" class="action">{{UI_LIGHTPATH_BACK}}</button>
         <span id="lightpath-counter" class="lightpath-counter"></span>

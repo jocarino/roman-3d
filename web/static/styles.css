@@ -82,7 +82,17 @@ a { color: var(--accent); text-decoration-color: rgba(224, 168, 62, 0.45); }
 
 #app { position: fixed; inset: 0; }
 
-#app-stage { position: absolute; inset: 0; }
+#app-stage {
+  position: absolute;
+  inset: 0;
+}
+/* Opening a part shrinks the stage. The ResizeObserver on #app-stage picks this
+   up and reframes the camera, so the piece you clicked stays in view instead of
+   sitting behind the panel describing it. */
+body.panel-open #app-stage { right: min(400px, 92vw); }
+/* The controls move over with it, or the right-hand buttons end up clipped
+   behind the panel. */
+body.panel-open .hud { right: min(400px, 92vw); }
 
 #stage {
   display: block;
@@ -388,13 +398,15 @@ a { color: var(--accent); text-decoration-color: rgba(224, 168, 62, 0.45); }
   z-index: 8;
   background: rgba(6, 9, 13, 0.86);
   display: flex;
-  align-items: center;
+  /* Anchored to the top, not centred. Centring meant the last step's call to
+     action grew the box and shifted every control on it upward. */
+  align-items: flex-start;
   justify-content: center;
-  padding: 20px;
+  padding: 5vh 20px 24px;
   overflow-y: auto;
 }
 .overlay-inner {
-  width: min(620px, 100%);
+  width: min(660px, 100%);
   max-height: 100%;
   overflow-y: auto;
   padding: 24px 26px 30px;
@@ -427,7 +439,21 @@ a { color: var(--accent); text-decoration-color: rgba(224, 168, 62, 0.45); }
 .overlay-body { margin: 0 0 14px; }
 .overlay-note { font-size: 12.5px; color: var(--dim); margin: 16px 0 0; }
 
-.lightpath-stage { margin: 0 0 14px; background: var(--panel-2); border: 1px solid var(--line); }
+.lightpath-stage {
+  margin: 0 0 16px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  /* Fixed height so Next does not shift under the pointer between steps. */
+  min-height: 168px;
+  display: flex;
+  align-items: center;
+}
+/* Same idea for the copy: the tallest step sets the height for all of them. */
+.lightpath-copy { min-height: 240px; }
+
+.lightpath-dots { display: flex; gap: 6px; margin: 0 0 14px; }
+.dot { width: 9px; height: 9px; background: var(--line); }
+.dot-on { background: var(--accent); }
 .diagram { display: block; width: 100%; height: auto; }
 .diagram-label { font-family: var(--px); font-size: 9px; fill: var(--dim); text-anchor: middle; }
 .diagram-small { font-family: var(--mono); font-size: 8px; fill: var(--dim); text-anchor: middle; }
@@ -446,14 +472,19 @@ a { color: var(--accent); text-decoration-color: rgba(224, 168, 62, 0.45); }
 .swatch-filled { stroke: var(--ink); stroke-width: 1.5; }
 .swatch-pending { fill: none; stroke: var(--line); stroke-dasharray: 5 4; }
 
+/* Present because the picture below it is invented, quiet because it is the
+   same sentence on every diagram step and nobody needs it shouted four times. */
 .schematic-warning {
-  font-size: 12px;
-  color: var(--accent);
-  border: 1px solid var(--accent);
-  background: rgba(224, 168, 62, 0.07);
-  padding: 8px 12px;
-  margin: 0 0 14px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--dim);
+  border-left: 2px solid var(--line);
+  padding: 1px 0 1px 10px;
+  margin: 0 0 12px;
+  min-height: 34px;
 }
+/* Keeps its space so the nav below does not move between steps. */
+.schematic-warning.is-empty { visibility: hidden; }
 
 .step-sources { margin: 0 0 4px; min-height: 18px; }
 .step-source {
@@ -463,7 +494,18 @@ a { color: var(--accent); text-decoration-color: rgba(224, 168, 62, 0.45); }
 }
 .step-source:hover { color: var(--accent); }
 
-.lightpath-nav { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+.lightpath-nav { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+
+#lightpath-finale { margin-top: 14px; }
+.finale-link {
+  display: block;
+  width: 100%;
+  text-align: center;
+  line-height: 46px;
+  min-height: 46px;
+  padding: 0 14px;
+  text-decoration: none;
+}
 .lightpath-counter {
   font-family: var(--px);
   font-size: 10px;
@@ -532,11 +574,17 @@ html.no-js #fallback-content {
   .panel {
     top: auto;
     width: 100%;
-    max-height: 68vh;
+    height: 62vh;
+    max-height: 62vh;
     border-left: 0;
     border-top: 1px solid var(--line);
     box-shadow: 0 -6px 0 var(--shadow);
   }
+  /* Give the sheet the bottom and keep the observatory in the top third,
+     with the controls sitting just above the sheet rather than under it. */
+  body.panel-open #app-stage { right: 0; bottom: 62vh; }
+  body.panel-open .hud-bottom { bottom: 62vh; }
+  body.panel-open .hud-top { padding-bottom: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

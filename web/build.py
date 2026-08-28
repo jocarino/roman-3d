@@ -170,8 +170,8 @@ def finale_link(facts: dict) -> str:
         return ""
     url = sibling["url"].rstrip("/") + sibling.get("path", "")
     return (
-        f'<p class="overlay-note"><a class="action action-primary" href="{esc(url)}"'
-        f' target="_blank" rel="noopener">{esc(facts["ui"]["lightpath_finale"])}</a></p>'
+        f'<a class="action action-primary finale-link" href="{esc(url)}"'
+        f' target="_blank" rel="noopener">{esc(facts["ui"]["lightpath_finale"])}</a>'
     )
 
 

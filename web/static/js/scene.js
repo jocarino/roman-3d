@@ -11,6 +11,7 @@ import { buildMeshArrays } from './voxelmesh.js';
 import { rampTexels } from './bundle.js';
 
 export const INTERNAL_HEIGHT = 240;
+export const PORTRAIT_HEIGHT = 340;
 const MAX_GROUPS = 8;
 const KEY_LIGHT = new THREE.Vector3(0.55, 0.72, 0.42).normalize();
 const AMBIENT = 0.34;
@@ -282,10 +283,31 @@ export class Observatory {
       fragmentShader: PICK_FRAGMENT,
     });
 
+    this._buildFitPoints();
+
     this.mesh = new THREE.Mesh(geometry, material);
     this.mesh.position.set(-this.dims[0] / 2, -this.dims[1] / 2, -this.dims[2] / 2);
     this.mesh.frustumCulled = false;
     this.scene.add(this.mesh);
+  }
+
+  /**
+   * A subsample of the actual occupied voxels, centred, used to frame the
+   * camera. Fitting the grid's bounding box instead wastes the frame: the box
+   * corners are empty sky, so at most angles the observatory sat at about two
+   * thirds the size it could have been. Worst on a phone, where the frame is
+   * fitted by width to begin with.
+   */
+  _buildFitPoints() {
+    const { x, y, z } = this.model.arrays;
+    const count = this.model.count;
+    const stride = Math.max(1, Math.floor(count / 4000));
+    const half = [this.dims[0] / 2, this.dims[1] / 2, this.dims[2] / 2];
+    const points = [];
+    for (let i = 0; i < count; i += stride) {
+      points.push(x[i] - half[0], y[i] - half[1], z[i] - half[2]);
+    }
+    this.fitPoints = new Float32Array(points);
   }
 
   _buildStars() {
@@ -428,7 +450,12 @@ export class Observatory {
 
   /** Resize the internal buffer to match the canvas aspect ratio. */
   resize(cssWidth, cssHeight) {
-    const height = Math.max(2, Math.round(this.options.internalHeight));
+    // A tall frame fits this observatory by its width, so the model lands small
+    // and a 240px buffer leaves it only a hundred-odd pixels across. Give a
+    // portrait viewport a taller buffer or the detail turns to mush.
+    const portrait = cssHeight > cssWidth;
+    const target = portrait ? PORTRAIT_HEIGHT : this.options.internalHeight;
+    const height = Math.max(2, Math.round(target));
     const width = Math.max(2, Math.round((height * cssWidth) / Math.max(cssHeight, 1)));
     if (width === this.size.width && height === this.size.height) return;
 
@@ -454,16 +481,25 @@ export class Observatory {
 
     let spanX = 0;
     let spanY = 0;
-    const corner = new THREE.Vector3();
-    for (let i = 0; i < 8; i += 1) {
-      corner.set(
-        (i & 1 ? 0.5 : -0.5) * this.dims[0],
-        (i & 2 ? 0.5 : -0.5) * this.dims[1],
-        (i & 4 ? 0.5 : -0.5) * this.dims[2]
-      );
-      spanX = Math.max(spanX, Math.abs(corner.dot(right)));
-      spanY = Math.max(spanY, Math.abs(corner.dot(up)));
+    const points = this.fitPoints;
+    const rx = right.x;
+    const ry = right.y;
+    const rz = right.z;
+    const ux = up.x;
+    const uy = up.y;
+    const uz = up.z;
+    for (let i = 0; i < points.length; i += 3) {
+      const px = points[i];
+      const py = points[i + 1];
+      const pz = points[i + 2];
+      const sx = Math.abs(px * rx + py * ry + pz * rz);
+      const sy = Math.abs(px * ux + py * uy + pz * uz);
+      if (sx > spanX) spanX = sx;
+      if (sy > spanY) spanY = sy;
     }
+    // Half a voxel for the sample that was skipped, plus the cube's own extent.
+    spanX += 1;
+    spanY += 1;
 
     // Pulling the model apart makes it bigger, so widen the frame to match
     // rather than letting the pieces slide off the edges.

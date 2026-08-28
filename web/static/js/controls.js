@@ -20,6 +20,13 @@ export const SNAP_VIEWS = {
 
 export const SNAP_ORDER = ['front', 'right', 'back', 'left', 'top'];
 
+// Opening poses. A tall screen gets a more end-on angle: seen from the front the
+// observatory is nearly three times wider than it is tall, so a portrait frame
+// fits it by width and wastes the rest. From nearer the end it is only about
+// half as wide, and fills the frame.
+const HOME_LANDSCAPE = { azimuth: 24, elevation: 18, zoom: 1 };
+const HOME_PORTRAIT = { azimuth: 68, elevation: 20, zoom: 1 };
+
 export class Controls {
   constructor(observatory, element, { reducedMotion = false, onReset = null } = {}) {
     this.observatory = observatory;
@@ -29,10 +36,11 @@ export class Controls {
     // can put the exploded view and the panel back at the same time.
     this.onReset = onReset;
 
-    this.azimuth = 24;
-    this.elevation = 18;
-    this.zoom = 1;
-    this.target = { azimuth: 24, elevation: 18, zoom: 1 };
+    this.home = { ...HOME_LANDSCAPE };
+    this.azimuth = this.home.azimuth;
+    this.elevation = this.home.elevation;
+    this.zoom = this.home.zoom;
+    this.target = { ...this.home };
     this.velocity = { azimuth: 0, elevation: 0 };
 
     this.autoOrbit = !reducedMotion;
@@ -100,7 +108,6 @@ export class Controls {
       { passive: false }
     );
 
-    el.addEventListener('dblclick', () => this.reset());  // also snaps the exploded view back
 
     // Two-finger pinch. Tracked separately from the single-pointer drag so a
     // pinch never also spins the model.
@@ -195,10 +202,19 @@ export class Controls {
     if (this.reducedMotion) this.apply(true);
   }
 
+  /** Swap the opening pose when the viewport shape changes. */
+  setPortrait(portrait) {
+    const home = portrait ? HOME_PORTRAIT : HOME_LANDSCAPE;
+    if (home.azimuth === this.home.azimuth) return;
+    this.home = { ...home };
+    // Only move the camera if the visitor has not taken it over themselves.
+    if (!this.interacted) this.reset({ notify: false });
+  }
+
   reset({ notify = true } = {}) {
     this.autoOrbit = !this.reducedMotion;
     this.interacted = false;
-    this.target = { azimuth: 24, elevation: 18, zoom: 1 };
+    this.target = { ...this.home };
     this.velocity = { azimuth: 0, elevation: 0 };
     if (this.reducedMotion) this.apply(true);
     if (notify) this.onReset?.();

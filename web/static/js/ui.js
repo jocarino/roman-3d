@@ -187,6 +187,9 @@ export class UI {
     this.panelBody.replaceChildren(...ids.map((id, i) => this._renderComponent(id, ids, i)));
     this.panel.hidden = false;
     this.panel.setAttribute('aria-hidden', 'false');
+    // Shrink the stage rather than cover it: the ResizeObserver on #app-stage
+    // reframes the camera, so the part you just clicked stays on screen.
+    document.body.classList.add('panel-open');
     this.root.querySelector('#panel-close')?.focus();
   }
 
@@ -195,6 +198,7 @@ export class UI {
     this.observatory.setHighlight(-1);
     this.panel.hidden = true;
     this.panel.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('panel-open');
   }
 
   _renderComponent(id, siblings, position) {
