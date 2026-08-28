@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{TITLE}}</title>
+<meta name="description" content="{{TAGLINE}}">
+<meta property="og:title" content="{{TITLE}}">
+<meta property="og:description" content="{{TAGLINE}}">
+<meta property="og:image" content="og.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0d13">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+<link rel="preload" href="fonts/silkscreen-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="model/roman.pxob.gz" as="fetch" crossorigin>
+<!--
+{{PROVENANCE}}
+-->
+</head>
+<body>
+
+<div id="app">
+  <div id="app-stage">
+    <canvas id="stage" aria-label="{{CANVAS_LABEL}}" role="img" tabindex="0"></canvas>
+    <p id="loading" class="loading">{{UI_LOADING}}</p>
+  </div>
+
+  <div id="fallback" class="fallback" hidden>
+    <p id="fallback-notice" class="fallback-notice"></p>
+    <img id="fallback-frame" class="fallback-frame" src="frames/orbit-00.png" alt="">
+    <label class="fallback-scrub-label" for="fallback-scrub">{{UI_FRAME_LABEL}}</label>
+    <input id="fallback-scrub" class="fallback-scrub" type="range" min="0" max="23" step="1" value="0">
+  </div>
+
+  <div id="hover-label" class="hover-label" hidden aria-hidden="true"></div>
+
+  <header class="hud hud-top">
+    <h1 class="site-title">{{TITLE}}</h1>
+    <p class="site-tagline">{{TAGLINE}}</p>
+    <p class="countdown">
+      <span class="countdown-label">{{COUNTDOWN_LABEL}}</span>
+      <span id="countdown-value" class="countdown-value" aria-live="off">{{COUNTDOWN_STATIC}}</span>
+      <button type="button" id="info-open" class="reveal" aria-label="{{UI_INFO_LABEL}}">i</button>
+    </p>
+  </header>
+
+  <div class="hud hud-bottom">
+    <nav class="views" aria-label="{{UI_VIEWS_LABEL}}">
+      <span class="hud-legend">{{UI_VIEWS_LABEL}}</span>
+      {{VIEW_BUTTONS}}
+    </nav>
+
+    <div class="explode">
+      <label class="hud-legend" for="explode-range">{{UI_EXPLODE_LABEL}}</label>
+      <input id="explode-range" class="explode-range" type="range" min="0" max="100" step="1" value="0"
+             aria-describedby="explode-hint">
+      <span id="explode-hint" class="visually-hidden">{{UI_EXPLODE_HINT}}</span>
+    </div>
+
+    <div class="actions">
+      <button type="button" id="lightpath-open" class="action action-primary">{{UI_LIGHTPATH_OPEN}}</button>
+      <button type="button" id="about-open" class="action">{{UI_ABOUT_OPEN}}</button>
+    </div>
+    <p id="controls-hint" class="visually-hidden"></p>
+  </div>
+
+  <aside id="panel" class="panel" role="dialog" aria-modal="false" aria-label="{{UI_PARTS_LABEL}}" hidden aria-hidden="true">
+    <button type="button" id="panel-close" class="panel-close" aria-label="{{UI_PANEL_CLOSE}}">x</button>
+    <div id="panel-body" class="panel-body"></div>
+  </aside>
+
+  <div id="lightpath" class="overlay lightpath" role="dialog" aria-modal="true" aria-labelledby="lightpath-title" hidden aria-hidden="true">
+    <div class="overlay-inner">
+      <button type="button" class="overlay-close" data-close aria-label="{{UI_LIGHTPATH_CLOSE}}">x</button>
+      <p class="overlay-kicker">{{LIGHTPATH_TITLE}}</p>
+      <div id="lightpath-stage" class="lightpath-stage"></div>
+      <p id="lightpath-warning" class="schematic-warning" hidden></p>
+      <h2 id="lightpath-title" class="overlay-title"></h2>
+      <p id="lightpath-body" class="overlay-body"></p>
+      <div class="lightpath-nav">
+        <button type="button" id="lightpath-back" class="action">{{UI_LIGHTPATH_BACK}}</button>
+        <span id="lightpath-counter" class="lightpath-counter"></span>
+        <button type="button" id="lightpath-next" class="action action-primary">{{UI_LIGHTPATH_NEXT}}</button>
+      </div>
+      {{LIGHTPATH_FINALE_LINK}}
+    </div>
+  </div>
+
+  <div id="info" class="overlay" role="dialog" aria-modal="true" aria-labelledby="info-title" hidden aria-hidden="true">
+    <div class="overlay-inner">
+      <button type="button" class="overlay-close" data-close aria-label="{{UI_ABOUT_CLOSE}}">x</button>
+      <h2 id="info-title" class="overlay-title">{{UI_INFO_LABEL}}</h2>
+      <p class="overlay-body">{{INTRO}}</p>
+      <p class="overlay-body">{{HONESTY}}</p>
+      <p class="overlay-note">{{COUNTDOWN_BASIS}}
+        <a href="{{COUNTDOWN_SOURCE_URL}}" rel="noopener" target="_blank">{{COUNTDOWN_SOURCE_LABEL}}</a>
+      </p>
+    </div>
+  </div>
+
+  <div id="about" class="overlay" role="dialog" aria-modal="true" aria-labelledby="about-title" hidden aria-hidden="true">
+    <div class="overlay-inner">
+      <button type="button" class="overlay-close" data-close aria-label="{{UI_ABOUT_CLOSE}}">x</button>
+      <h2 id="about-title" class="overlay-title">{{ABOUT_TITLE}}</h2>
+      {{ABOUT_BODY}}
+      <h3 class="overlay-subtitle">{{UI_PANEL_SOURCES}}</h3>
+      {{SOURCES_LIST}}
+    </div>
+  </div>
+</div>
+
+<noscript>
+  <p class="noscript-note">{{NOSCRIPT_NOTE}}</p>
+</noscript>
+
+<div id="fallback-content" class="reading">
+  <h2 class="reading-title">{{UI_PARTS_LABEL}}</h2>
+  {{PARTS_STATIC}}
+  <h2 class="reading-title">{{LIGHTPATH_TITLE}}</h2>
+  {{LIGHTPATH_STATIC}}
+  <h2 class="reading-title">{{ABOUT_TITLE}}</h2>
+  {{ABOUT_BODY}}
+  <h3 class="reading-subtitle">{{UI_PANEL_SOURCES}}</h3>
+  {{SOURCES_LIST}}
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
