@@ -109,7 +109,7 @@
     "source_code": "Source code",
     "canvas_label": "Three-dimensional pixel-art model of the Roman Space Telescope. Drag to orbit it.",
     "noscript": "This page needs JavaScript for the 3D model. Everything the model would have told you is written out below.",
-    "lightpath_finale": "See this planet on the Exoplanet Palette",
+    "lightpath_finale": "Explore the exoplanet colour catalogue",
     "lightpath_hint": "Seven steps from a star to a colour",
     "reset_label": "Reset",
     "reset_title": "Put the telescope back the way it started",
@@ -326,28 +326,32 @@
         "width": "10 percent",
         "role": "Imaging and polarimetry",
         "supported": true,
-        "requirement": true
+        "requirement": true,
+        "width_short": "10%"
       },
       {
         "nm": 660,
         "width": "15 percent",
         "role": "Installed, never characterised on the ground",
         "supported": false,
-        "requirement": false
+        "requirement": false,
+        "width_short": "15%"
       },
       {
         "nm": 730,
         "width": "15 percent",
         "role": "Slit and prism spectroscopy, about R equals 50",
         "supported": true,
-        "requirement": false
+        "requirement": false,
+        "width_short": "15%"
       },
       {
         "nm": 825,
         "width": "10 percent",
         "role": "Wide field imaging",
         "supported": true,
-        "requirement": false
+        "requirement": false,
+        "width_short": "10%"
       }
     ],
     "hero_planet": {
@@ -373,11 +377,14 @@
       "bay": "instrument bay",
       "bay_note": "schematic only",
       "mask": "mask stops the star",
-      "wheel": "filter wheel",
+      "wheel": "filter wheel, band width below",
       "not_tested": "not tested",
       "counts": "three counts",
       "bands_sum": "575 + 730 + 825",
-      "predicted": "predicted colour"
+      "predicted": "predicted colour",
+      "measured": "measured",
+      "not_yet": "not yet",
+      "readout": "one reading per band"
     }
   },
   "about": {
@@ -407,7 +414,7 @@
     "sibling": {
       "label": "Exoplanet Palette",
       "url": "https://exoplanets.joaogveloso.com",
-      "path": "/roman"
+      "path": ""
     },
     "source_code": {
       "label": "Source code",

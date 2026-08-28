@@ -267,6 +267,15 @@ body.panel-open .hud-bottom { display: none; }
 }
 .action-primary { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
 .action:disabled { opacity: 0.4; cursor: default; }
+/* Fading the gold fill left a muddy olive slab that still looked pressable,
+   right above the real call to action. */
+.action-primary:disabled {
+  opacity: 1;
+  color: var(--dim);
+  background: var(--panel);
+  border-color: var(--line);
+  box-shadow: none;
+}
 
 .explode { min-width: 210px; }
 
@@ -348,14 +357,17 @@ body.panel-open .hud-bottom { display: none; }
 }
 
 .panel-close, .overlay-close {
-  float: right;
+  flex: 0 0 auto;
   font-family: var(--px);
+  font-size: 11px;
   width: 44px; height: 44px;
   color: var(--ink);
   background: var(--panel-2);
   border: 1px solid var(--line);
+  box-shadow: 3px 3px 0 var(--shadow);
   cursor: pointer;
 }
+.panel-close { float: right; }
 
 .component-name {
   font-family: var(--px);
@@ -402,11 +414,9 @@ body.panel-open .hud-bottom { display: none; }
   z-index: 8;
   background: rgba(6, 9, 13, 0.86);
   display: flex;
-  /* Anchored to the top, not centred. Centring meant the last step's call to
-     action grew the box and shifted every control on it upward. */
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding: 5vh 20px 24px;
+  padding: 3vh 20px;
   overflow-y: auto;
 }
 .overlay-inner {
@@ -418,6 +428,45 @@ body.panel-open .hud-bottom { display: none; }
   border: 1px solid var(--line);
   box-shadow: 8px 8px 0 var(--shadow);
 }
+
+/* The light path is a fixed-height column: the picture and the words scroll,
+   the buttons never move. Reserving space for each slot instead meant the copy
+   wrapped differently on every step and walked the Next button 73px down the
+   screen on a phone, and left a dead band above the heading on the steps with
+   no schematic label. */
+.lightpath-inner {
+  display: flex;
+  flex-direction: column;
+  max-height: 94vh;
+  overflow: hidden;
+  height: auto;
+  padding-bottom: 22px;
+}
+.lightpath-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex: 0 0 auto;
+}
+.lightpath-head .overlay-kicker { margin-bottom: 14px; }
+.lightpath-scroll {
+  /* A fixed height, not a flexible one. Left flexible, the box shrank to fit
+     each step's copy and carried the buttons up and down with it. */
+  height: min(62vh, 520px);
+  overflow-y: auto;
+  flex: 0 0 auto;
+  /* Softens the last line when there is more below, so a clipped sentence
+     reads as "keep going" rather than as a bug. */
+  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 26px), transparent);
+  mask-image: linear-gradient(180deg, #000 calc(100% - 26px), transparent);
+}
+.lightpath-foot {
+  flex: 0 0 auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  margin-top: 14px;
+}
 .overlay-kicker {
   font-family: var(--px);
   font-size: 10px;
@@ -428,9 +477,11 @@ body.panel-open .hud-bottom { display: none; }
 }
 .overlay-title {
   font-family: var(--px);
-  font-size: 16px;
-  margin: 0 0 10px;
+  font-size: 20px;
+  line-height: 1.25;
+  margin: 0 0 12px;
   color: #e8eef5;
+  text-wrap: balance;
 }
 .overlay-subtitle {
   font-family: var(--px);
@@ -444,24 +495,24 @@ body.panel-open .hud-bottom { display: none; }
 .overlay-note { font-size: 12.5px; color: var(--dim); margin: 16px 0 0; }
 
 .lightpath-stage {
-  margin: 0 0 16px;
+  margin: 0 0 18px;
   background: var(--panel-2);
   border: 1px solid var(--line);
   /* Fixed height so Next does not shift under the pointer between steps. */
-  min-height: 168px;
   display: flex;
   align-items: center;
 }
 /* Same idea for the copy: the tallest step sets the height for all of them. */
-.lightpath-copy { min-height: 240px; }
 
-.lightpath-dots { display: flex; gap: 6px; margin: 0 0 14px; }
-.dot { width: 9px; height: 9px; background: var(--line); }
+.lightpath-dots { display: flex; gap: 7px; margin: 0 0 14px; }
+.dot { width: 10px; height: 10px; background: var(--line); }
 .dot-on { background: var(--accent); }
 .diagram { display: block; width: 100%; height: auto; }
-.diagram-label { font-family: var(--px); font-size: 9px; fill: var(--dim); text-anchor: middle; }
-.diagram-small { font-family: var(--mono); font-size: 8px; fill: var(--dim); text-anchor: middle; }
-.diagram-band { font-family: var(--px); font-size: 13px; fill: var(--ink); text-anchor: middle; }
+.diagram-label { font-family: var(--px); font-size: 11px; fill: var(--dim); text-anchor: middle; }
+.diagram-small { font-family: var(--mono); font-size: 10px; fill: var(--dim); text-anchor: middle; }
+.diagram-band { font-family: var(--px); font-size: 16px; fill: var(--ink); text-anchor: middle; }
+.diagram-band-off { fill: var(--line); }
+.readout { stroke: var(--dim); stroke-width: 1.5; stroke-dasharray: 4 3; }
 .beam-star { stroke: #e8eef5; }
 .beam-planet { stroke: var(--accent); }
 .aperture, .bay, .mask, .filter, .detector, .swatch { fill: none; stroke: var(--line); stroke-width: 1.5; }
@@ -484,13 +535,16 @@ body.panel-open .hud-bottom { display: none; }
   color: var(--dim);
   border-left: 2px solid var(--line);
   padding: 1px 0 1px 10px;
-  margin: 0 0 12px;
-  min-height: 34px;
+  margin: 0 0 14px;
 }
-/* Keeps its space so the nav below does not move between steps. */
-.schematic-warning.is-empty { visibility: hidden; }
 
-.step-sources { margin: 0 0 4px; min-height: 18px; }
+.step-sources { margin: 14px 0 0; }
+.step-note {
+  margin: 8px 0 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--dim);
+}
 .step-source {
   font-size: 11.5px;
   color: var(--dim);
@@ -502,12 +556,17 @@ body.panel-open .hud-bottom { display: none; }
 
 #lightpath-finale { margin-top: 14px; }
 .finale-link {
-  display: block;
+  /* Flex rather than a 46px line-height: the label wraps at narrow widths, and
+     a line-height that tall turned two lines into a 92px slab with a hole in
+     the middle. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  text-align: center;
-  line-height: 46px;
   min-height: 46px;
-  padding: 0 14px;
+  line-height: 1.35;
+  padding: 10px 14px;
+  text-align: center;
   text-decoration: none;
 }
 .lightpath-counter {

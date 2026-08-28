@@ -98,6 +98,7 @@ def build(
             "base": pal.hex_base(),
             "shades": list(palette_mod.SHADE_STEPS),
             "ramp": [[int(v) for v in shade] for row in pal.ramp for shade in row],
+            "outline": pal.outline,
         },
         "groups": [
             {"id": g.id, "label": g.label, "explode": list(g.explode)} for g in mapping.groups

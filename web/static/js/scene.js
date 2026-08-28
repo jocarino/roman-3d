@@ -10,17 +10,23 @@ import * as THREE from '../vendor/three/three.module.min.js';
 import { buildMeshArrays } from './voxelmesh.js';
 import { rampTexels } from './bundle.js';
 
-export const INTERNAL_HEIGHT = 240;
-export const PORTRAIT_HEIGHT = 340;
+// The offscreen buffer is sized from the viewport rather than pinned, so the
+// blocks come out roughly the same size on a phone and on a desktop. A fixed
+// 240 meant a laptop upscaled 5.4x against a phone's 1.8x: the same picture,
+// but four times chunkier on the bigger screen, and only 1.6 buffer pixels per
+// voxel, which is too few to resolve a cube at all.
+const UPSCALE = 2.5;
+export const MIN_INTERNAL_HEIGHT = 240;
+export const MAX_INTERNAL_HEIGHT = 480;
 const MAX_GROUPS = 8;
 const KEY_LIGHT = new THREE.Vector3(0.55, 0.72, 0.42).normalize();
 const AMBIENT = 0.34;
 const BACKGROUND = 0x0a0d13;
+const FALLBACK_OUTLINE = '#3a424e';
 // The starfield lives on its own sphere with its own camera, so it never
 // competes with the model for depth range and never gets clipped by it.
 const STAR_RADIUS = 1000;
 const STAR_COUNT = 460;
-const OUTLINE_COLOR = new THREE.Color(6 / 255, 8 / 255, 12 / 255);
 
 const MODEL_VERTEX = /* glsl */ `
   attribute float aGroup;
@@ -182,7 +188,6 @@ export class Observatory {
     this.dims = model.header.grid.dims;
     this.groups = model.header.groups;
     this.options = {
-      internalHeight: INTERNAL_HEIGHT,
       dither: 0.55,
       outline: true,
       scanlines: 0.05,
@@ -427,7 +432,10 @@ export class Observatory {
       tColor: { value: this.target.texture },
       tDepth: { value: this.target.depthTexture },
       uTexel: { value: new THREE.Vector2(1 / 2, 1 / 2) },
-      uOutline: { value: OUTLINE_COLOR.clone() },
+      uOutline: {
+        // From the bundle, so the offline renderer and this one cannot drift.
+        value: new THREE.Color(this.model.header.palette.outline || FALLBACK_OUTLINE),
+      },
       uOutlineOn: { value: this.options.outline ? 1 : 0 },
       uOutlineDepth: { value: 0.008 },
       uScanlines: { value: this.options.scanlines },
@@ -450,12 +458,14 @@ export class Observatory {
 
   /** Resize the internal buffer to match the canvas aspect ratio. */
   resize(cssWidth, cssHeight) {
-    // A tall frame fits this observatory by its width, so the model lands small
-    // and a 240px buffer leaves it only a hundred-odd pixels across. Give a
-    // portrait viewport a taller buffer or the detail turns to mush.
-    const portrait = cssHeight > cssWidth;
-    const target = portrait ? PORTRAIT_HEIGHT : this.options.internalHeight;
-    const height = Math.max(2, Math.round(target));
+    const target = Math.min(
+      Math.max(Math.round(cssHeight / UPSCALE), MIN_INTERNAL_HEIGHT),
+      MAX_INTERNAL_HEIGHT,
+      // Never render more rows than the canvas has: downscaling a pixel grid
+      // just throws the pixels away again.
+      Math.max(Math.round(cssHeight), 2)
+    );
+    const height = Math.max(2, target);
     const width = Math.max(2, Math.round((height * cssWidth) / Math.max(cssHeight, 1)));
     if (width === this.size.width && height === this.size.height) return;
 

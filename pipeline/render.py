@@ -38,7 +38,11 @@ BAYER4 = (
 )
 
 BACKGROUND = np.array([10, 13, 19], dtype=np.uint8)
-OUTLINE = np.array([6, 8, 12], dtype=np.uint8)
+
+
+def _outline_rgb(palette: Palette) -> np.ndarray:
+    value = palette.outline.lstrip("#")
+    return np.array([int(value[i : i + 2], 16) for i in (0, 2, 4)], dtype=np.uint8)
 
 
 @dataclass(frozen=True)
@@ -244,7 +248,7 @@ def render(
         hit, axis_hit, palette, color_index, forward, highlight, dither, stars, width, height
     )
     if outline:
-        image = _outline(image, hit)
+        image = _outline(image, hit, _outline_rgb(palette))
 
     if highlight is not None:
         solo = np.where(volume == highlight, np.int16(0), np.int16(-1))
@@ -356,7 +360,7 @@ def _starfield(image: np.ndarray) -> np.ndarray:
     return image
 
 
-def _outline(image: np.ndarray, hit: np.ndarray) -> np.ndarray:
+def _outline(image: np.ndarray, hit: np.ndarray, colour: np.ndarray) -> np.ndarray:
     """One-pixel dark rim wherever the silhouette meets the background."""
 
     solid = hit >= 0
@@ -366,7 +370,7 @@ def _outline(image: np.ndarray, hit: np.ndarray) -> np.ndarray:
     edge[:, 1:] |= solid[:, 1:] & ~solid[:, :-1]
     edge[:, :-1] |= solid[:, :-1] & ~solid[:, 1:]
     out = image.copy()
-    out[edge] = OUTLINE
+    out[edge] = colour
     return out
 
 

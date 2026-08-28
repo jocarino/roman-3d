@@ -40,6 +40,19 @@ BASE_COLORS: tuple[tuple[str, str], ...] = (
 # Four luminance steps. Index 0 is unlit, 3 is fully keyed.
 SHADE_STEPS: tuple[float, ...] = (0.42, 0.62, 0.82, 1.06)
 
+# Added in linear light before the ramp is encoded, so an unlit face never falls
+# all the way to the background. Without it the darkest materials rendered at
+# 1.02 contrast against the sky, which is to say invisible: whole components
+# disappeared when they turned away from the key light. Kept small on purpose,
+# because a large floor flattens the dark end into one grey.
+AMBIENT_FLOOR = 0.010
+
+# The one-pixel rim. Mid-tone rather than near-black on purpose: it is lighter
+# than the dark materials and darker than the pale ones, so it separates a part
+# from the sky and from its neighbours whichever way that part is facing. Lives
+# here rather than in each renderer so the two cannot drift apart.
+OUTLINE = "#3a424e"
+
 # Material name -> base colour index. Curated against the M1 contact sheet;
 # every material in the source model appears here exactly once.
 MATERIAL_COLORS: dict[str, int] = {
@@ -89,6 +102,7 @@ class Palette:
     names: tuple[str, ...]
     base: np.ndarray  # (16, 3) uint8
     ramp: np.ndarray  # (16, 4, 3) uint8
+    outline: str
 
     @property
     def size(self) -> int:
@@ -116,10 +130,11 @@ def build() -> Palette:
     # Ramp in linear light so darkening a colour does not also desaturate it.
     lin = (base.astype(np.float64) / 255.0) ** 2.2
     scaled = lin[:, None, :] * np.array(SHADE_STEPS, dtype=np.float64)[None, :, None]
+    scaled += AMBIENT_FLOOR
     srgb = np.clip(scaled, 0.0, 1.0) ** (1 / 2.2)
     ramp = np.round(srgb * 255.0).astype(np.uint8)
 
-    return Palette(names=names, base=base, ramp=ramp)
+    return Palette(names=names, base=base, ramp=ramp, outline=OUTLINE)
 
 
 def material_indices(materials: tuple[str, ...]) -> np.ndarray:
