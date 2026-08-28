@@ -67,6 +67,19 @@ async function boot() {
   new ResizeObserver(resize).observe(stageWrap);
   resize();
 
+  // Publish the bottom controls' height so a portrait layout can keep the
+  // observatory above them instead of centring it behind them. Goes to zero
+  // when the controls are hidden, which is what happens with a panel open.
+  const hudBottom = root.querySelector('.hud-bottom');
+  if (hudBottom) {
+    const syncHud = () => {
+      const height = Math.ceil(hudBottom.getBoundingClientRect().height);
+      document.documentElement.style.setProperty('--hud-bottom', `${height}px`);
+    };
+    new ResizeObserver(syncHud).observe(hudBottom);
+    syncHud();
+  }
+
   wirePointer(canvas, observatory, ui, controls);
   wireKeys(controls, ui, lightPath);
 

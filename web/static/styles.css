@@ -92,7 +92,11 @@ a { color: var(--accent); text-decoration-color: rgba(224, 168, 62, 0.45); }
 body.panel-open #app-stage { right: min(400px, 92vw); }
 /* The controls move over with it, or the right-hand buttons end up clipped
    behind the panel. */
-body.panel-open .hud { right: min(400px, 92vw); }
+body.panel-open .hud-top { right: min(400px, 92vw); }
+/* The view buttons and the slider go away entirely while a part is open. They
+   steer a model that is now sharing the screen, and the panel is the thing
+   being read. */
+body.panel-open .hud-bottom { display: none; }
 
 #stage {
   display: block;
@@ -570,7 +574,22 @@ html.no-js #fallback-content {
   .hud { padding: 12px 14px; }
   .site-tagline { display: none; }
   .hud-bottom { flex-direction: column; align-items: stretch; }
-  .actions { margin-left: 0; }
+  .actions { margin-left: 0; flex-wrap: nowrap; }
+
+  /* Keep the observatory clear of the controls rather than centred behind
+     them. --hud-bottom is measured in main.js and drops to zero when the
+     controls are hidden. */
+  #app-stage { bottom: var(--hud-bottom, 0px); }
+
+  /* All six view buttons on one line: tighter padding and no wrapping. */
+  .views-row { flex-wrap: nowrap; gap: 4px; }
+  .view-button { padding: 0 8px; font-size: 10px; flex: 0 1 auto; min-width: 0; }
+  .view-reset { margin-left: 8px; }
+
+  /* And the two actions on one line, with the long label free to shrink. */
+  .action-stacked { flex: 1 1 auto; min-width: 0; }
+  .action-sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .actions .action { flex-shrink: 0; }
   .panel {
     top: auto;
     width: 100%;
@@ -583,8 +602,7 @@ html.no-js #fallback-content {
   /* Give the sheet the bottom and keep the observatory in the top third,
      with the controls sitting just above the sheet rather than under it. */
   body.panel-open #app-stage { right: 0; bottom: 62vh; }
-  body.panel-open .hud-bottom { bottom: 62vh; }
-  body.panel-open .hud-top { padding-bottom: 0; }
+  body.panel-open .hud-top { right: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
