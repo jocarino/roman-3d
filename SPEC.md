@@ -1,5 +1,6 @@
 # Pixel Observatory — build spec
 
+**Repo:** `roman-3d`
 **Working title:** Pixel Observatory (provisional; owner may rename)
 **One-liner:** NASA's Roman Space Telescope, rebuilt voxel by voxel. An interactive
 3D pixel-art explorer of the observatory, ending where our sibling site begins:
