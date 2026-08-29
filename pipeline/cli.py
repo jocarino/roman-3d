@@ -3,18 +3,21 @@
 uv run observatory info      what is in the source model
 uv run observatory m1        contact sheet plus hero frames at each grid
 uv run observatory bundle    the packed voxel bundle
-uv run observatory frames    the no-WebGL orbit and the social card
+uv run observatory frames    the no-WebGL orbit frames
+uv run observatory card      the share card, on its own
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
 import numpy as np
 from PIL import Image
 
+from . import card as card_mod
 from . import components as components_mod
 from . import contact, glb, pack
 from . import palette as palette_mod
@@ -146,21 +149,29 @@ def cmd_frames(args: argparse.Namespace) -> int:
 
     paths = orbit_frames(voxels, pal, color_index, args.out / "frames")
     print(f"{len(paths)} orbit frames -> {args.out / 'frames'}")
+    return 0
 
-    # Social card, at the 1200x630 the crawlers expect.
-    card = render_mod.render(
-        voxels,
-        pal,
-        render_mod.THREE_QUARTER,
-        300,
-        158,
-        volume=occupancy(voxels),
-        color_index=color_index,
+
+def cmd_card(args: argparse.Namespace) -> int:
+    """The share card on its own, for looking at it without building the site.
+
+    ``web/build.py`` writes the same card as part of a build; this exists so
+    that changing the layout does not mean waiting for a whole site.
+    """
+
+    model = load_model(args.source)
+    voxels, _, _ = prepare(model, args.grid)
+    pal = palette_mod.build()
+    color_index = palette_mod.material_indices(voxels.materials)
+
+    facts = json.loads((ROOT / "data" / "facts.json").read_text())
+    spec = card_mod.CardSpec(
+        title=facts["site"]["title"],
+        tagline=facts["site"]["tagline"]["text"],
+        caption=facts["site"]["share"]["caption"]["text"],
     )
-    image = Image.fromarray(render_mod.upscale(card.color, 4)).resize((1200, 632), Image.NEAREST)
-    card_path = args.out / "og.png"
-    image.crop((0, 1, 1200, 631)).save(card_path)
-    print(f"social card -> {card_path}")
+    path = card_mod.write_card(args.out, card_mod.render_card(voxels, pal, color_index, spec))
+    print(f"share card -> {path} ({path.stat().st_size / 1024:.1f} KB)")
     return 0
 
 
@@ -181,9 +192,13 @@ def main(argv: list[str] | None = None) -> int:
     bundle.add_argument("--out", type=Path, default=ROOT / "dist" / "site" / "model")
     bundle.set_defaults(func=cmd_bundle)
 
-    frames = sub.add_parser("frames", help="no-WebGL orbit frames and the social card")
+    frames = sub.add_parser("frames", help="no-WebGL orbit frames")
     frames.add_argument("--out", type=Path, default=ROOT / "dist" / "site")
     frames.set_defaults(func=cmd_frames)
+
+    card = sub.add_parser("card", help="the 1200x630 share card")
+    card.add_argument("--out", type=Path, default=ROOT / "dist" / "og.png")
+    card.set_defaults(func=cmd_card)
 
     args = parser.parse_args(argv)
     return args.func(args)

@@ -76,6 +76,20 @@
     "pixels": {
       "text": "Every surface here is built from little cubes on a grid: pixels with a third dimension. There are about 123,000 of them, and you are looking at the ones on the outside.",
       "source": "model-source"
+    },
+    "share": {
+      "description": {
+        "text": "NASA's own 3D model of the Roman Space Telescope, rebuilt out of little cubes you can orbit, pull apart and follow the light through.",
+        "source": "model-source"
+      },
+      "caption": {
+        "text": "Stylised, not photographic. An unofficial project, not affiliated with NASA.",
+        "source": "model-source"
+      },
+      "image_alt": {
+        "text": "The Roman Space Telescope drawn as pixel art, its blue solar panel and gold instrument ring lit against a dark starfield.",
+        "source": "model-source"
+      }
     }
   },
   "ui": {

@@ -47,7 +47,9 @@ assets/source/roman-glb-a.glb          committed NASA GLB, Draco compressed
         |  pipeline/components.py      apply data/components.json
         |  pipeline/palette.py         16 base colours, 4 shade steps
         |  pipeline/pack.py            -> model/roman.pxob.gz   (about 47 KB)
-        |  pipeline/render.py          -> 24 orbit frames, contact sheet, social card
+        |  pipeline/render.py          -> 24 orbit frames, contact sheet
+        |  pipeline/card.py            -> og.png, the 1200x630 share card
+        |  web/meta.py                 -> share tags, robots.txt, sitemap.xml
         v
 dist/site/                             static, no server logic
         web/static/js/scene.js         three.js, low-res target, posterize, dither, outline

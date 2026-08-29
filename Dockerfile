@@ -17,7 +17,14 @@ COPY assets ./assets
 COPY data ./data
 COPY web ./web
 
-RUN python web/build.py --out /out/site
+# The canonical origin, for example https://observatory.example.com. Open Graph
+# wants absolute URLs: without this the card is still built and still served,
+# but most unfurlers drop a relative og:image, so a shared link arrives with no
+# picture, and no sitemap.xml is written. Set it as a build argument on the
+# deploy. The build says which of the two happened on stdout.
+ARG SITE_BASE_URL=""
+
+RUN python web/build.py --out /out/site --base-url "$SITE_BASE_URL"
 
 
 FROM nginx:1.27-alpine AS serve
