@@ -6,26 +6,63 @@ The site is static. Everything interesting happened at build time.
 
 Point a Dokploy application at this repo and let it build the `Dockerfile`. The
 build stage runs the Python pipeline (`web/build.py`) and the serve stage is
-nginx over `dist/site`. No environment variables, no secrets, no runtime
-configuration.
+nginx over `dist/site`. No secrets and no runtime configuration. There is one
+build argument, and it matters.
 
 The image runs the pipeline rather than shipping a prebuilt `dist/`, so what
 gets deployed is always what the committed source model and the committed data
 files produce. `dist/` stays gitignored.
 
+## `SITE_BASE_URL`, the one setting
+
+**Set `SITE_BASE_URL` as a build argument on the Dokploy application**, to the
+site's own origin with no trailing path, for example
+`https://observatory.example.com`.
+
+It is a build argument rather than a runtime variable because the origin is
+baked into the HTML at build time; changing it means rebuilding, which is also
+true of every other word on the page.
+
+Without it the site still builds and still works, but it shares badly:
+
+| | with it | without it |
+|---|---|---|
+| `og:image`, `og:url`, canonical | absolute | root relative |
+| Link unfurls with the card | yes | usually not |
+| `sitemap.xml` | written | not written |
+| `robots.txt` | written, points at the sitemap | written, no sitemap line |
+
+Open Graph asks for absolute URLs and most unfurlers enforce it, so a relative
+`og:image` is dropped and a shared link arrives as a bare grey box. A guessed
+origin would be worse than a relative one, so the build never invents it. It
+prints which of the two happened on the last line of its output, and
+`uv run pytest tests/test_share.py` covers both paths.
+
 ## Building it by hand
 
 ```bash
-docker build -t pixel-observatory .
+docker build --build-arg SITE_BASE_URL=https://observatory.example.com \
+  -t pixel-observatory .
 docker run --rm -p 8080:80 pixel-observatory
 ```
 
 Or without Docker at all:
 
 ```bash
-uv run python web/build.py
+uv run python web/build.py --base-url https://observatory.example.com
 python3 -m http.server 8000 --directory dist/site
 ```
+
+`--base-url` defaults to `$SITE_BASE_URL`. Leave both off for local work; the
+warning at the end of the build is expected there.
+
+## Checking a share card after a deploy
+
+The unfurlers cache aggressively, so check before announcing anything. Paste
+the URL into a private Slack channel or a draft post, or use the crawler's own
+inspector. If the picture is wrong, `og.png` is served with a one-week
+`Cache-Control` rather than the year the other images get, precisely so a fix
+does not take a year to reach anybody.
 
 ## What the server needs to get right
 
@@ -56,9 +93,9 @@ From SPEC 12:
 
 First load pulls the page, the stylesheet, the ES modules, the vendored
 three.js (about 180 KB gzipped, the largest single item), four woff2 faces
-totalling 27 KB, and the bundle. The 24 orbit frames and the social card are
-only fetched by browsers that fall back, so they do not count against the first
-load.
+totalling 27 KB, and the bundle. The 24 orbit frames are only fetched by
+browsers that fall back, and the share card only by crawlers, so neither counts
+against the first load.
 
 ## Analytics
 

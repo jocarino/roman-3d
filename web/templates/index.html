@@ -3,14 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>{{TITLE}}</title>
-<meta name="description" content="{{TAGLINE}}">
-<meta property="og:title" content="{{TITLE}}">
-<meta property="og:description" content="{{TAGLINE}}">
-<meta property="og:image" content="og.png">
+<title>{{SHARE_TITLE}}</title>
+<meta name="description" content="{{SHARE_DESCRIPTION}}">
+<link rel="canonical" href="{{SHARE_URL}}">
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="{{SHARE_TITLE}}">
+<meta property="og:locale" content="{{SHARE_LOCALE}}">
+<meta property="og:title" content="{{SHARE_TITLE}}">
+<meta property="og:description" content="{{SHARE_DESCRIPTION}}">
+<meta property="og:url" content="{{SHARE_URL}}">
+<meta property="og:image" content="{{SHARE_IMAGE}}">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="{{SHARE_IMAGE_WIDTH}}">
+<meta property="og:image:height" content="{{SHARE_IMAGE_HEIGHT}}">
+<meta property="og:image:alt" content="{{SHARE_IMAGE_ALT}}">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{SHARE_TITLE}}">
+<meta name="twitter:description" content="{{SHARE_DESCRIPTION}}">
+<meta name="twitter:image" content="{{SHARE_IMAGE}}">
+<meta name="twitter:image:alt" content="{{SHARE_IMAGE_ALT}}">
 <meta name="theme-color" content="#0a0d13">
+<script type="application/ld+json">{{JSONLD}}</script>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="styles.css">
 <link rel="preload" href="fonts/silkscreen-400.woff2" as="font" type="font/woff2" crossorigin>

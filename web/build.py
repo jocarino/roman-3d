@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import html
 import json
+import os
 import shutil
 import sys
 from pathlib import Path
@@ -22,10 +23,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+from pipeline import card as card_mod  # noqa: E402
 from pipeline import cli as pipeline_cli  # noqa: E402
 from pipeline import components as components_mod  # noqa: E402
 from pipeline import pack  # noqa: E402
 from pipeline import palette as palette_mod  # noqa: E402
+from web import meta as meta_mod  # noqa: E402
 
 DATA = ROOT / "data"
 STATIC = ROOT / "web" / "static"
@@ -175,7 +178,27 @@ def finale_link(facts: dict) -> str:
     )
 
 
-def render_page(facts: dict, mission: dict, mapping, provenance: dict) -> str:
+def card_spec(facts: dict) -> card_mod.CardSpec:
+    """Map the copy onto what the card renderer wants. The adapter lives here
+    rather than in the pipeline so the renderer stays ignorant of the data
+    file's shape, and so the copy keeps arriving from exactly one place."""
+
+    share = facts["site"]["share"]
+    return card_mod.CardSpec(
+        title=facts["site"]["title"],
+        tagline=facts["site"]["tagline"]["text"],
+        caption=share["caption"]["text"],
+    )
+
+
+def render_page(
+    facts: dict,
+    mission: dict,
+    mapping,
+    provenance: dict,
+    site: meta_mod.Site,
+    page: meta_mod.PageMeta,
+) -> str:
     ui = facts["ui"]
     values = {
         "TITLE": facts["site"]["title"],
@@ -195,12 +218,16 @@ def render_page(facts: dict, mission: dict, mapping, provenance: dict) -> str:
     }
     for key, value in ui.items():
         values[f"UI_{key.upper()}"] = value
+    values.update(meta_mod.share_values(site, page))
 
-    page = TEMPLATE.read_text()
+    html_out = TEMPLATE.read_text()
     for key, value in values.items():
-        page = page.replace("{{" + key + "}}", esc(str(value)))
+        html_out = html_out.replace("{{" + key + "}}", esc(str(value)))
 
     raw = {
+        # Already escaped for the script element by ``jsonld`` itself; running
+        # it through ``esc`` would turn the quotes into entities and break it.
+        "JSONLD": meta_mod.jsonld(site, page),
         "VIEW_BUTTONS": view_buttons(facts),
         "PARTS_STATIC": parts_static(facts, mapping),
         "LIGHTPATH_STATIC": lightpath_static(facts),
@@ -210,16 +237,16 @@ def render_page(facts: dict, mission: dict, mapping, provenance: dict) -> str:
         "PROVENANCE": json.dumps(provenance, indent=2, sort_keys=True),
     }
     for key, value in raw.items():
-        page = page.replace("{{" + key + "}}", value)
+        html_out = html_out.replace("{{" + key + "}}", value)
 
-    leftover = [token for token in ("{{",) if token in page]
+    leftover = [token for token in ("{{",) if token in html_out]
     if leftover:
-        start = page.index("{{")
-        raise SystemExit(f"unfilled template token near: {page[start : start + 40]!r}")
-    return page
+        start = html_out.index("{{")
+        raise SystemExit(f"unfilled template token near: {html_out[start : start + 40]!r}")
+    return html_out
 
 
-def build(out: Path, grid: int, source: Path) -> dict:
+def build(out: Path, grid: int, source: Path, base_url: str = "") -> dict:
     facts = json.loads((DATA / "facts.json").read_text())
     mission = json.loads((DATA / "mission.json").read_text())
     mapping = components_mod.load()
@@ -234,21 +261,36 @@ def build(out: Path, grid: int, source: Path) -> dict:
     bundle = pack.build(model, voxels, mapping_obj, groups, pal)
     written = pack.write(bundle, out / "model")
 
-    # Orbit frames and the social card come from the same offline renderer.
+    # The no-WebGL orbit comes from the same offline renderer as the card.
     pipeline_cli.cmd_frames(argparse.Namespace(source=source, grid=grid, out=out))
+
+    colour_index = palette_mod.material_indices(voxels.materials)
+    card = card_mod.render_card(voxels, pal, colour_index, card_spec(facts))
+    card_path = card_mod.write_card(out / "og.png", card)
 
     for name in ("facts.json", "mission.json"):
         shutil.copyfile(DATA / name, out / name)
     (out / "favicon.svg").write_text(FAVICON)
 
-    page = render_page(facts, mission, mapping, bundle.header["provenance"])
+    # The commit date, not the wall clock, so two builds of one commit agree.
+    lastmod = bundle.header["provenance"]["generated"][:10]
+    home = meta_mod.home(facts)
+    site = meta_mod.Site(base_url=base_url.rstrip("/"), pages=[home])
+
+    page = render_page(facts, mission, mapping, bundle.header["provenance"], site, home)
     (out / "index.html").write_text(page)
+
+    (out / "robots.txt").write_text(meta_mod.robots_txt(site))
+    if site.base_url:
+        (out / "sitemap.xml").write_text(meta_mod.sitemap_xml(site, lastmod=lastmod))
 
     return {
         "index": out / "index.html",
         "bundle_raw": written["raw"],
         "bundle_gz": written["gz"],
         "voxels": voxels.count,
+        "card": card_path,
+        "base_url": site.base_url,
     }
 
 
@@ -257,14 +299,31 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, default=ROOT / "dist" / "site")
     parser.add_argument("--grid", type=int, default=pipeline_cli.DEFAULT_GRID)
     parser.add_argument("--source", type=Path, default=pipeline_cli.DEFAULT_SOURCE)
+    parser.add_argument(
+        "--base-url",
+        default=os.environ.get("SITE_BASE_URL", ""),
+        help="Canonical origin, for example https://example.com. Open Graph wants absolute "
+        "URLs and most unfurlers drop a relative og:image, so a shared link with no origin "
+        "set arrives without its picture. sitemap.xml is only written when this is given, "
+        "because a sitemap of relative locations is invalid. Defaults to $SITE_BASE_URL.",
+    )
     args = parser.parse_args(argv)
 
-    result = build(args.out, args.grid, args.source)
+    result = build(args.out, args.grid, args.source, base_url=args.base_url)
     total = sum(p.stat().st_size for p in args.out.rglob("*") if p.is_file())
     print(f"site      {args.out}")
     print(f"voxels    {result['voxels']:,}")
     print(f"bundle    {result['bundle_gz'].stat().st_size / 1024:.1f} KB gzipped")
+    print(f"card      {result['card']} ({result['card'].stat().st_size / 1024:.1f} KB)")
     print(f"tree      {total / 1024 / 1024:.2f} MB on disk")
+    if result["base_url"]:
+        print(f"share     absolute at {result['base_url']}, sitemap.xml written")
+    else:
+        print(
+            "share     no --base-url or $SITE_BASE_URL, so the share tags are relative\n"
+            "          and no sitemap.xml was written. Most unfurlers will show the link\n"
+            "          without its picture. Set it on the deploy."
+        )
     return 0
 
 

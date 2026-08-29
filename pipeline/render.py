@@ -309,7 +309,7 @@ def _shade(
 ) -> np.ndarray:
     image = np.broadcast_to(BACKGROUND, (height, width, 3)).copy()
     if stars:
-        image = _starfield(image)
+        image = starfield(image)
 
     solid = hit >= 0
     if not solid.any():
@@ -347,7 +347,7 @@ def _shade(
     return image
 
 
-def _starfield(image: np.ndarray) -> np.ndarray:
+def starfield(image: np.ndarray) -> np.ndarray:
     """Sparse single-pixel stars. Seeded, so frames are reproducible."""
 
     height, width = image.shape[:2]
