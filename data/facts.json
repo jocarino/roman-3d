@@ -61,6 +61,7 @@
   },
   "site": {
     "title": "Pixel Observatory",
+    "origin": "https://roman.joaogveloso.com",
     "tagline": {
       "text": "NASA's Roman Space Telescope, rebuilt pixel by pixel.",
       "source": "model-source"

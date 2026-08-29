@@ -59,10 +59,21 @@ def built(tmp_path_factory, repo_root):
 
 @pytest.fixture(scope="session")
 def built_without_origin(tmp_path_factory, repo_root):
+    """An origin explicitly emptied, which is not the same as one left unsaid."""
+
     out = tmp_path_factory.mktemp("no-base") / "site"
     build_mod.build(
         out, BUILD_GRID, repo_root / "assets" / "source" / "roman-glb-a.glb", base_url=""
     )
+    return out
+
+
+@pytest.fixture(scope="session")
+def built_plain(tmp_path_factory, repo_root):
+    """A build with nothing configured at all, which is how the deploy runs."""
+
+    out = tmp_path_factory.mktemp("default") / "site"
+    build_mod.build(out, BUILD_GRID, repo_root / "assets" / "source" / "roman-glb-a.glb")
     return out
 
 
@@ -163,6 +174,48 @@ def test_card_png_is_small_enough_that_a_crawler_waits_for_it(built):
     assert data[:8] == b"\x89PNG\r\n\x1a\n"
     assert Image.open(path).size == (1200, 630)
     assert len(data) < 60_000, f"{len(data)} bytes is slow for an unfurl"
+
+
+# --- the default build ------------------------------------------------------
+#
+# This block is the regression guard for the bug that actually shipped. The
+# share tags were correct and the card was fine; the deploy simply never set
+# the build argument they depended on, so the live site served
+# `og:image content="/og.png"` and the first link pasted into WhatsApp arrived
+# without its picture. Nothing here may depend on configuration.
+
+
+def test_a_build_with_nothing_configured_still_shares_absolutely(built_plain, facts):
+    html = head(built_plain)
+    expected = facts["site"]["origin"].rstrip("/")
+    for attr, name in (
+        ("property", "og:image"),
+        ("property", "og:url"),
+        ("name", "twitter:image"),
+    ):
+        value = tag(html, attr, name)
+        assert value.startswith(f"{expected}/"), f"{name} is {value!r}, not absolute"
+
+
+def test_a_build_with_nothing_configured_writes_a_sitemap(built_plain):
+    assert (built_plain / "sitemap.xml").exists()
+    assert "Sitemap:" in (built_plain / "robots.txt").read_text()
+
+
+def test_the_origin_in_the_data_is_a_real_absolute_https_url(facts):
+    origin = facts["site"]["origin"]
+    assert origin.startswith("https://")
+    assert not origin.endswith("/")
+    assert "://" in origin and " " not in origin
+
+
+def test_saying_nothing_and_saying_empty_are_different(facts):
+    """The distinction the Dockerfile got wrong: interpolating an unset build
+    argument passes an empty string, which reads as "home unknown"."""
+
+    assert meta_mod.origin(facts, None) == facts["site"]["origin"]
+    assert meta_mod.origin(facts, "") == ""
+    assert meta_mod.origin(facts, "https://other.test/") == "https://other.test"
 
 
 # --- absolute URLs ----------------------------------------------------------

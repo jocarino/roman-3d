@@ -17,14 +17,17 @@ COPY assets ./assets
 COPY data ./data
 COPY web ./web
 
-# The canonical origin, for example https://observatory.example.com. Open Graph
-# wants absolute URLs: without this the card is still built and still served,
-# but most unfurlers drop a relative og:image, so a shared link arrives with no
-# picture, and no sitemap.xml is written. Set it as a build argument on the
-# deploy. The build says which of the two happened on stdout.
+# Optional override of the canonical origin, for a preview deploy on some other
+# host. Leave it unset for the real one: the origin is in data/facts.json, so
+# share URLs come out absolute without anything being configured here.
+#
+# Note the ${VAR:+...} form. Passing an empty --base-url is not the same as
+# passing none: it means "this site's home is unknown", which turns every share
+# URL relative and drops the sitemap. Interpolating the argument unconditionally
+# would do exactly that on every default build, which is the bug this replaced.
 ARG SITE_BASE_URL=""
 
-RUN python web/build.py --out /out/site --base-url "$SITE_BASE_URL"
+RUN python web/build.py --out /out/site ${SITE_BASE_URL:+--base-url "$SITE_BASE_URL"}
 
 
 FROM nginx:1.27-alpine AS serve

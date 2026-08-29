@@ -8,17 +8,26 @@ Three jobs, all of them string work:
 * ``sitemap.xml``.
 
 The one rule that makes or breaks all of it is **absolute URLs**. Open Graph
-says ``og:image`` must be a full URL with a scheme and a host, and most
-unfurlers enforce it: a relative ``og.png`` is simply dropped, which is how a
-site ends up sharing as a grey box. But the build cannot know its own origin,
-so the origin arrives from outside as ``$SITE_BASE_URL`` (or ``--base-url``).
+wants a full URL with a scheme and a host, and WhatsApp's published rules say
+so outright: "an absolute URL for an image". Relative ones are dropped, which
+is how a site ends up sharing as a grey box with no picture.
 
-When it is missing we fall back to root-relative paths rather than guessing a
-host. A guessed origin is worse than a relative one: the relative form still
-resolves for the more forgiving unfurlers and for anyone reading the page,
-while a wrong absolute one points every crawler at somebody else's server. The
-sitemap has no such halfway house, because ``<loc>`` is required to be
-absolute, so it is simply not written. ``web/build.py`` says so on stdout.
+The origin therefore lives in ``data/facts.json`` as ``site.origin``, and is
+the default. It used to arrive only from outside, as ``$SITE_BASE_URL`` or
+``--base-url``, on the reasoning that a build cannot know where it will be
+served and a guessed origin is worse than a relative one. That reasoning was
+sound and the conclusion was still wrong, because it made working share links
+depend on somebody remembering a build argument. Nobody did, the site shipped
+with ``content="/og.png"``, and the first link pasted into WhatsApp arrived
+without its picture. A default that is checked into the repo cannot be
+forgotten, and it is not a guess: it is where the site actually is.
+
+``$SITE_BASE_URL`` and ``--base-url`` still override it, for a preview deploy
+on another host. Passing an explicitly empty origin turns every share URL back
+into a root-relative path and writes no sitemap, which is the honest output for
+a build whose home really is unknown. The sitemap has no halfway house, because
+``<loc>`` is required to be absolute. ``web/build.py`` says which of the three
+happened on stdout.
 """
 
 from __future__ import annotations
@@ -139,6 +148,18 @@ def sitemap_xml(site: Site, lastmod: str | None = None) -> str:
     out.append("</urlset>")
     out.append("")
     return "\n".join(out)
+
+
+def origin(facts: dict, override: str | None = None) -> str:
+    """Where the site lives.
+
+    ``None`` means nobody asked for anything in particular, so use the origin
+    in the data. An empty string is a deliberate request for relative URLs and
+    is honoured: it is not the same as saying nothing.
+    """
+
+    chosen = facts["site"]["origin"] if override is None else override
+    return chosen.rstrip("/")
 
 
 def home(facts: dict) -> PageMeta:
