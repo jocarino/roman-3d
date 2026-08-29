@@ -246,7 +246,7 @@ def render_page(
     return html_out
 
 
-def build(out: Path, grid: int, source: Path, base_url: str = "") -> dict:
+def build(out: Path, grid: int, source: Path, base_url: str | None = None) -> dict:
     facts = json.loads((DATA / "facts.json").read_text())
     mission = json.loads((DATA / "mission.json").read_text())
     mapping = components_mod.load()
@@ -275,7 +275,7 @@ def build(out: Path, grid: int, source: Path, base_url: str = "") -> dict:
     # The commit date, not the wall clock, so two builds of one commit agree.
     lastmod = bundle.header["provenance"]["generated"][:10]
     home = meta_mod.home(facts)
-    site = meta_mod.Site(base_url=base_url.rstrip("/"), pages=[home])
+    site = meta_mod.Site(base_url=meta_mod.origin(facts, base_url), pages=[home])
 
     page = render_page(facts, mission, mapping, bundle.header["provenance"], site, home)
     (out / "index.html").write_text(page)
@@ -301,11 +301,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--source", type=Path, default=pipeline_cli.DEFAULT_SOURCE)
     parser.add_argument(
         "--base-url",
-        default=os.environ.get("SITE_BASE_URL", ""),
-        help="Canonical origin, for example https://example.com. Open Graph wants absolute "
-        "URLs and most unfurlers drop a relative og:image, so a shared link with no origin "
-        "set arrives without its picture. sitemap.xml is only written when this is given, "
-        "because a sitemap of relative locations is invalid. Defaults to $SITE_BASE_URL.",
+        default=os.environ.get("SITE_BASE_URL"),
+        help="Override the canonical origin, for example https://preview.example.com. "
+        "Defaults to $SITE_BASE_URL, and then to site.origin in data/facts.json, which is "
+        "where the site actually lives. Pass an empty string to force root-relative share "
+        "URLs and skip sitemap.xml; note that most unfurlers drop a relative og:image, so "
+        "a link built that way shares without its picture.",
     )
     args = parser.parse_args(argv)
 
@@ -320,9 +321,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"share     absolute at {result['base_url']}, sitemap.xml written")
     else:
         print(
-            "share     no --base-url or $SITE_BASE_URL, so the share tags are relative\n"
-            "          and no sitemap.xml was written. Most unfurlers will show the link\n"
-            "          without its picture. Set it on the deploy."
+            "share     origin explicitly empty, so the share tags are relative and no\n"
+            "          sitemap.xml was written. Most unfurlers drop a relative og:image,\n"
+            "          so links built this way share without their picture."
         )
     return 0
 
